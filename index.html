@@ -11,6 +11,7 @@ body{
   font-family:"Microsoft JhengHei",Arial,sans-serif;
   background:#fffdf6;
   color:#3b2a1a;
+  overflow-x:hidden;
 }
 .hidden{display:none!important}
 header{text-align:center;padding:20px 12px 8px}
@@ -44,6 +45,7 @@ button.blue{background:#60a5fa;color:white}
 button.gray{background:#e5e7eb;color:#333}
 button.orange{background:#fbbf24;color:#4a2a00}
 button:active{transform:translateY(3px);box-shadow:0 1px 0 #7a4a20}
+
 .list-grid{
   display:grid;
   grid-template-columns:repeat(auto-fill,minmax(170px,1fr));
@@ -60,15 +62,25 @@ button:active{transform:translateY(3px);box-shadow:0 1px 0 #7a4a20}
 .item-top{display:flex;align-items:center;gap:8px;margin-bottom:8px}
 .item input[type="text"],.item input[type="number"]{width:100%;margin-top:4px}
 .item label{font-size:13px;color:#6b4b2b}
+
 .main-wheel{
   display:grid;
   grid-template-columns:1fr 360px;
   gap:24px;
   align-items:center;
 }
-.wheel-area{text-align:center;position:relative}
+.wheel-area{
+  text-align:center;
+  position:relative;
+  min-height:620px;
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  justify-content:center;
+}
 .pointer{
-  width:0;height:0;
+  width:0;
+  height:0;
   border-left:24px solid transparent;
   border-right:24px solid transparent;
   border-top:56px solid #ef4444;
@@ -77,8 +89,10 @@ button:active{transform:translateY(3px);box-shadow:0 1px 0 #7a4a20}
   z-index:3;
 }
 .wheel{
-  width:560px;height:560px;
-  max-width:90vw;max-height:90vw;
+  width:560px;
+  height:560px;
+  max-width:90vw;
+  max-height:90vw;
   border-radius:50%;
   border:12px solid #9b642f;
   margin:auto;
@@ -86,12 +100,17 @@ button:active{transform:translateY(3px);box-shadow:0 1px 0 #7a4a20}
   overflow:hidden;
   transition:transform 4s cubic-bezier(.12,.72,.14,1);
   box-shadow:0 12px 28px rgba(0,0,0,.25);
+  will-change:transform;
+  transform:translateZ(0);
+  contain:layout paint;
 }
 .wheel-center{
   position:absolute;
-  left:50%;top:50%;
+  left:50%;
+  top:50%;
   transform:translate(-50%,-50%);
-  width:120px;height:120px;
+  width:120px;
+  height:120px;
   border-radius:50%;
   background:#ffc983;
   border:8px solid #9b642f;
@@ -104,17 +123,25 @@ button:active{transform:translateY(3px);box-shadow:0 1px 0 #7a4a20}
 }
 .label{
   position:absolute;
-  left:50%;top:50%;
-  width:46%;
-  transform-origin:0 0;
+  left:50%;
+  top:50%;
+  width:130px;
+  height:32px;
+  margin-left:-65px;
+  margin-top:-16px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  text-align:center;
   font-size:15px;
   font-weight:bold;
   color:#5b3415;
-  text-align:right;
-  padding-right:8px;
   white-space:nowrap;
   overflow:hidden;
   text-overflow:ellipsis;
+  transform-origin:center center;
+  pointer-events:none;
+  z-index:1;
 }
 .result-box{
   background:#fff8ec;
@@ -153,10 +180,16 @@ button:active{transform:translateY(3px);box-shadow:0 1px 0 #7a4a20}
 }
 .lock-box{width:min(420px,100%)}
 .small{font-size:14px;color:#7c5a35}
+
 @media(max-width:900px){
   .main-wheel{grid-template-columns:1fr}
+  .wheel-area{min-height:430px}
   .wheel{width:360px;height:360px}
-  .label{font-size:11px}
+  .label{
+    width:90px;
+    margin-left:-45px;
+    font-size:11px;
+  }
 }
 </style>
 </head>
@@ -425,6 +458,8 @@ function buildWheel(){
   document.getElementById("resultTitle").textContent = "尚未抽獎";
   document.getElementById("resultSub").textContent = "請設定抽取數量後開始抽獎";
   document.getElementById("currentResult").textContent = "尚無本次結果";
+
+  window.scrollTo({top:0,behavior:"smooth"});
 }
 
 function drawWheel(list){
@@ -432,23 +467,36 @@ function drawWheel(list){
   wheel.innerHTML = `<div class="wheel-center">LUCKY</div>`;
 
   const totalWeight = list.reduce((s,x)=>s+x.weight,0);
+  const isSameWeight = list.every(x=>x.weight === list[0].weight);
+
   let gradient = [];
   let current = 0;
+
+  const wheelSize = wheel.offsetWidth || 560;
+  const labelDistance = wheelSize * 0.31;
 
   list.forEach((p,i)=>{
     const deg = p.weight / totalWeight * 360;
     const start = current;
     const end = current + deg;
+    const mid = start + deg / 2;
     const color = colors[i % colors.length];
 
     gradient.push(`${color} ${start}deg ${end}deg`);
 
     const label = document.createElement("div");
     label.className = "label";
-    label.textContent = `${p.name} ${((p.weight/totalWeight)*100).toFixed(1)}%`;
-    label.style.transform = `rotate(${start + deg/2}deg) translateY(-50%)`;
-    wheel.appendChild(label);
 
+    if(isSameWeight){
+      label.textContent = p.name;
+    }else{
+      label.textContent = `${p.name} ${((p.weight/totalWeight)*100).toFixed(1)}%`;
+    }
+
+    label.style.transform =
+      `rotate(${mid}deg) translateY(-${labelDistance}px) rotate(90deg)`;
+
+    wheel.appendChild(label);
     current = end;
   });
 
@@ -485,7 +533,7 @@ function draw(){
   document.getElementById("resultSub").textContent = "轉盤轉動中";
 
   rotation += 1800 + Math.floor(Math.random()*1440);
-  wheel.style.transform = `rotate(${rotation}deg)`;
+  wheel.style.transform = `translateZ(0) rotate(${rotation}deg)`;
 
   setTimeout(()=>{
     showWinners(winners);
@@ -496,7 +544,10 @@ function draw(){
       participants.forEach(p=>{
         if(winnerSet.has(p.number)) p.checked = false;
       });
-      drawWheel(activeParticipants.length ? activeParticipants : winners);
+
+      if(activeParticipants.length > 0){
+        drawWheel(activeParticipants);
+      }
     }
   },4100);
 }
@@ -541,6 +592,7 @@ function backToSetup(){
   document.getElementById("wheelPage").classList.add("hidden");
   document.getElementById("setupPage").classList.remove("hidden");
   renderList();
+  window.scrollTo({top:0,behavior:"smooth"});
 }
 
 function escapeAttr(str){
