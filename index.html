@@ -26,7 +26,7 @@ h1{margin:0;color:#8b4513}
   box-shadow:0 8px 18px rgba(0,0,0,.08);
 }
 .row{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
-input,button{
+input,button,select{
   border-radius:14px;
   padding:10px 14px;
   border:3px solid #f6b26b;
@@ -45,6 +45,36 @@ button.blue{background:#60a5fa;color:white}
 button.gray{background:#e5e7eb;color:#333}
 button.orange{background:#fbbf24;color:#4a2a00}
 button:active{transform:translateY(3px);box-shadow:0 1px 0 #7a4a20}
+
+.prize-table{
+  width:100%;
+  border-collapse:collapse;
+  margin-top:12px;
+  background:white;
+  border-radius:14px;
+  overflow:hidden;
+}
+.prize-table th,.prize-table td{
+  border-bottom:1px solid #e6c7a3;
+  padding:10px;
+  text-align:left;
+}
+.prize-table th{
+  background:#ffe7b7;
+}
+.prize-table input{
+  width:100%;
+}
+.prize-badge{
+  display:inline-block;
+  background:#fff1c7;
+  border:2px solid #9b642f;
+  border-radius:999px;
+  padding:6px 12px;
+  margin:4px;
+  font-weight:bold;
+}
+
 .list-grid{
   display:grid;
   grid-template-columns:repeat(auto-fill,minmax(170px,1fr));
@@ -61,6 +91,7 @@ button:active{transform:translateY(3px);box-shadow:0 1px 0 #7a4a20}
 .item-top{display:flex;align-items:center;gap:8px;margin-bottom:8px}
 .item input[type="text"],.item input[type="number"]{width:100%;margin-top:4px}
 .item label{font-size:13px;color:#6b4b2b}
+
 .main-wheel{
   display:grid;
   grid-template-columns:1fr 360px;
@@ -217,6 +248,12 @@ button:active{transform:translateY(3px);box-shadow:0 1px 0 #7a4a20}
   font-weight:bold;
   margin-bottom:20px;
 }
+.winner-prize{
+  font-size:28px;
+  color:#92400e;
+  font-weight:bold;
+  margin-bottom:12px;
+}
 .winner-name{
   font-size:38px;
   color:#7e22ce;
@@ -230,12 +267,14 @@ button:active{transform:translateY(3px);box-shadow:0 1px 0 #7a4a20}
   margin-bottom:20px;
 }
 .small{font-size:14px;color:#7c5a35}
+
 @media(max-width:900px){
   .main-wheel{grid-template-columns:1fr}
   .wheel-area{min-height:430px}
   .wheel-frame{width:360px;height:360px}
   .label{width:90px;margin-left:-45px;font-size:11px}
   .winner-title{font-size:30px}
+  .winner-prize{font-size:22px}
   .winner-name{font-size:28px}
   .lock-box h1{font-size:32px}
   .lock-box p{font-size:24px}
@@ -260,6 +299,7 @@ button:active{transform:translateY(3px);box-shadow:0 1px 0 #7a4a20}
 <div id="winnerMask" class="winner-mask hidden">
   <div class="winner-box">
     <div class="winner-title">🎉 恭喜中獎 🎉</div>
+    <div id="winnerPrize" class="winner-prize"></div>
     <div id="winnerName" class="winner-name"></div>
     <div id="winnerTime" class="winner-time"></div>
     <button id="winnerBtn" class="orange" onclick="winnerModalNext()">確認</button>
@@ -273,6 +313,30 @@ button:active{transform:translateY(3px);box-shadow:0 1px 0 #7a4a20}
 <div class="container">
 
 <section id="setupPage">
+
+  <div class="panel">
+    <h2>獎項設定</h2>
+    <p class="small">可設定多個獎項與名額。轉盤頁會選擇目前要抽的獎項，抽取數量會自動帶入剩餘名額。</p>
+
+    <div class="row">
+      <button class="orange" onclick="addPrize()">新增獎項</button>
+      <button class="gray" onclick="resetPrizeDefaults()">恢復預設獎項</button>
+      <button class="red" onclick="clearPrizeRecords()">清空獎項已抽紀錄</button>
+    </div>
+
+    <table class="prize-table">
+      <thead>
+        <tr>
+          <th style="width:45%">獎項名稱</th>
+          <th style="width:20%">名額</th>
+          <th style="width:20%">已抽</th>
+          <th style="width:15%">操作</th>
+        </tr>
+      </thead>
+      <tbody id="prizeBody"></tbody>
+    </table>
+  </div>
+
   <div class="panel">
     <h2>抽獎名單設定</h2>
     <p class="small">預設 60 個號碼。沒有輸入名稱時，會使用號碼代表；沒有輸入權重時，權重自動為 1。</p>
@@ -308,13 +372,19 @@ button:active{transform:translateY(3px);box-shadow:0 1px 0 #7a4a20}
 <section id="wheelPage" class="hidden">
   <div class="panel">
     <div class="row" style="justify-content:center">
+      <span>目前獎項：</span>
+      <select id="currentPrizeSelect" onchange="changeCurrentPrize()" style="min-width:220px"></select>
+
       <span>抽取數量：</span>
       <input id="drawCount" type="number" value="1" min="1" style="width:110px">
+
       <label>
         <input id="noRepeat" type="checkbox" checked>
         不重複中獎
       </label>
     </div>
+
+    <div id="prizeSummary" style="text-align:center;margin-top:10px"></div>
 
     <div class="row" style="justify-content:center;margin-top:10px">
       <button id="drawBtn" onclick="startDraw()">開始抽獎</button>
@@ -336,7 +406,7 @@ button:active{transform:translateY(3px);box-shadow:0 1px 0 #7a4a20}
     <div class="result-box">
       <div class="small">本次抽獎結果</div>
       <div id="resultTitle" class="big-result">尚未抽獎</div>
-      <p id="resultSub">請設定抽取數量後開始抽獎</p>
+      <p id="resultSub">請選擇獎項後開始抽獎</p>
       <div id="currentResult" class="record">尚無本次結果</div>
 
       <h3>抽獎紀錄</h3>
@@ -355,9 +425,11 @@ let participants = [];
 let activeParticipants = [];
 let rotation = 0;
 let records = [];
+let prizes = [];
 let drawQueue = [];
 let drawIndex = 0;
 let pendingWinners = [];
+let pendingPrizeId = null;
 let isDrawing = false;
 
 const colors = [
@@ -378,6 +450,142 @@ function login(){
 document.getElementById("passwordInput").addEventListener("keydown",e=>{
   if(e.key==="Enter") login();
 });
+
+function defaultPrizes(){
+  return [
+    {id:makeId(), name:"一獎", quota:1, drawn:0},
+    {id:makeId(), name:"二獎", quota:3, drawn:0},
+    {id:makeId(), name:"三獎", quota:10, drawn:0}
+  ];
+}
+
+function makeId(){
+  return "p_" + Date.now() + "_" + Math.floor(Math.random()*999999);
+}
+
+function renderPrizes(){
+  const body = document.getElementById("prizeBody");
+  body.innerHTML = "";
+
+  prizes.forEach((p,index)=>{
+    const tr = document.createElement("tr");
+    tr.innerHTML = `
+      <td>
+        <input value="${escapeAttr(p.name)}" oninput="updatePrizeName('${p.id}',this.value)">
+      </td>
+      <td>
+        <input type="number" min="1" value="${p.quota}" oninput="updatePrizeQuota('${p.id}',this.value)">
+      </td>
+      <td>
+        ${p.drawn} / ${p.quota}
+      </td>
+      <td>
+        <button class="red" onclick="deletePrize('${p.id}')">刪除</button>
+      </td>
+    `;
+    body.appendChild(tr);
+  });
+}
+
+function updatePrizeName(id,value){
+  const p = prizes.find(x=>x.id===id);
+  if(p) p.name = value.trim() || "未命名獎項";
+}
+
+function updatePrizeQuota(id,value){
+  const p = prizes.find(x=>x.id===id);
+  if(!p) return;
+
+  const n = Number(value);
+  p.quota = n > 0 ? n : 1;
+
+  if(p.drawn > p.quota){
+    p.drawn = p.quota;
+  }
+
+  renderPrizes();
+}
+
+function addPrize(){
+  prizes.push({
+    id:makeId(),
+    name:`獎項 ${prizes.length + 1}`,
+    quota:1,
+    drawn:0
+  });
+  renderPrizes();
+}
+
+function deletePrize(id){
+  if(prizes.length <= 1){
+    alert("至少需要保留一個獎項。");
+    return;
+  }
+
+  if(!confirm("確定刪除此獎項？")) return;
+
+  prizes = prizes.filter(p=>p.id!==id);
+  renderPrizes();
+}
+
+function resetPrizeDefaults(){
+  if(!confirm("確定恢復預設獎項？目前獎項設定會被覆蓋。")) return;
+  prizes = defaultPrizes();
+  renderPrizes();
+}
+
+function clearPrizeRecords(){
+  if(!confirm("確定清空所有獎項已抽數量？")) return;
+  prizes.forEach(p=>p.drawn=0);
+  renderPrizes();
+  renderPrizeSelect();
+  updatePrizeSummary();
+}
+
+function renderPrizeSelect(){
+  const select = document.getElementById("currentPrizeSelect");
+  select.innerHTML = "";
+
+  prizes.forEach(p=>{
+    const remain = Math.max(p.quota - p.drawn,0);
+    const option = document.createElement("option");
+    option.value = p.id;
+    option.textContent = `${p.name}｜剩餘 ${remain} / ${p.quota}`;
+    option.disabled = remain <= 0;
+    select.appendChild(option);
+  });
+
+  const firstAvailable = prizes.find(p=>p.quota - p.drawn > 0);
+  if(firstAvailable){
+    select.value = firstAvailable.id;
+  }
+
+  changeCurrentPrize();
+}
+
+function getCurrentPrize(){
+  const id = document.getElementById("currentPrizeSelect").value;
+  return prizes.find(p=>p.id===id);
+}
+
+function changeCurrentPrize(){
+  const prize = getCurrentPrize();
+  if(!prize) return;
+
+  const remain = Math.max(prize.quota - prize.drawn,0);
+  document.getElementById("drawCount").value = remain > 0 ? remain : 1;
+  updatePrizeSummary();
+}
+
+function updatePrizeSummary(){
+  const box = document.getElementById("prizeSummary");
+  if(!box) return;
+
+  box.innerHTML = prizes.map(p=>{
+    const remain = Math.max(p.quota - p.drawn,0);
+    return `<span class="prize-badge">🎁 ${escapeHtml(p.name)}｜已抽 ${p.drawn} / ${p.quota}｜剩餘 ${remain}</span>`;
+  }).join("");
+}
 
 function generateList(){
   const newTotal = Number(document.getElementById("totalInput").value);
@@ -499,12 +707,20 @@ function buildWheel(){
     return;
   }
 
+  if(prizes.length === 0){
+    alert("請至少設定一個獎項。");
+    return;
+  }
+
   document.getElementById("setupPage").classList.add("hidden");
   document.getElementById("wheelPage").classList.remove("hidden");
 
   document.getElementById("resultTitle").textContent = "尚未抽獎";
-  document.getElementById("resultSub").textContent = "請設定抽取數量後開始抽獎";
+  document.getElementById("resultSub").textContent = "請選擇獎項後開始抽獎";
   document.getElementById("currentResult").textContent = "尚無本次結果";
+
+  renderPrizeSelect();
+  updatePrizeSummary();
 
   window.scrollTo({top:0,behavior:"smooth"});
 
@@ -554,23 +770,42 @@ function renderWheel(list){
 function startDraw(){
   if(isDrawing) return;
 
+  const prize = getCurrentPrize();
+  if(!prize){
+    alert("請選擇獎項。");
+    return;
+  }
+
+  const remain = prize.quota - prize.drawn;
+  if(remain <= 0){
+    alert("此獎項已抽完，請選擇其他獎項。");
+    return;
+  }
+
   const count = Number(document.getElementById("drawCount").value);
   if(!count || count < 1){
     alert("抽取數量至少為 1");
     return;
   }
+
+  if(count > remain){
+    alert(`此獎項剩餘名額只有 ${remain} 位。`);
+    return;
+  }
+
   if(count > activeParticipants.length){
     alert("抽取數量不可大於目前轉盤人數");
     return;
   }
 
+  pendingPrizeId = prize.id;
   pendingWinners = pickWinners(count);
   drawQueue = [...pendingWinners];
   drawIndex = 0;
 
   document.getElementById("currentResult").textContent = "抽獎中...";
   document.getElementById("resultTitle").textContent = "抽獎中...";
-  document.getElementById("resultSub").textContent = `準備抽出 ${count} 位`;
+  document.getElementById("resultSub").textContent = `準備抽出 ${count} 位｜${prize.name}`;
 
   spinNextWinner();
 }
@@ -592,10 +827,11 @@ function spinNextWinner(){
   document.getElementById("drawBtn").disabled = true;
 
   const winner = drawQueue[drawIndex];
+  const prize = prizes.find(p=>p.id===pendingPrizeId);
   const wheel = document.getElementById("wheelSpin");
 
   document.getElementById("resultTitle").textContent = "抽獎中...";
-  document.getElementById("resultSub").textContent = `第 ${drawIndex + 1} 位抽獎中`;
+  document.getElementById("resultSub").textContent = `第 ${drawIndex + 1} 位抽獎中｜${prize ? prize.name : ""}`;
 
   rotation += 1800 + Math.floor(Math.random()*1440);
   wheel.style.transform = `rotate(${rotation}deg)`;
@@ -605,6 +841,10 @@ function spinNextWinner(){
 
 function showWinnerModal(winner){
   const now = new Date().toLocaleString("zh-TW",{hour12:false});
+  const prize = prizes.find(p=>p.id===pendingPrizeId);
+
+  document.getElementById("winnerPrize").textContent = prize ? `🎁 ${prize.name}` : "";
+
   document.getElementById("winnerName").textContent =
     pendingWinners.length === 1
       ? `第 1 位：${winner.name}`
@@ -631,15 +871,24 @@ function winnerModalNext(){
 
 function finishDraw(){
   const noRepeat = document.getElementById("noRepeat").checked;
+  const prize = prizes.find(p=>p.id===pendingPrizeId);
+  const prizeName = prize ? prize.name : "未命名獎項";
   const text = pendingWinners.map((w,i)=>`第 ${i+1} 位：${w.name}（${w.number}號）`).join("\n");
 
   document.getElementById("resultTitle").textContent = "恭喜中獎";
-  document.getElementById("resultSub").textContent = `本次抽出 ${pendingWinners.length} 位`;
+  document.getElementById("resultSub").textContent = `${prizeName}｜本次抽出 ${pendingWinners.length} 位`;
   document.getElementById("currentResult").textContent = text;
 
   const time = new Date().toLocaleString("zh-TW",{hour12:false});
-  records.unshift(`${time}\n${text}`);
+  records.unshift(`${time}\n【${prizeName}】\n${text}`);
   renderRecords();
+
+  if(prize){
+    prize.drawn += pendingWinners.length;
+    if(prize.drawn > prize.quota){
+      prize.drawn = prize.quota;
+    }
+  }
 
   if(noRepeat){
     const winnerSet = new Set(pendingWinners.map(x=>x.number));
@@ -653,6 +902,10 @@ function finishDraw(){
       renderWheel(activeParticipants);
     }
   }
+
+  renderPrizeSelect();
+  updatePrizeSummary();
+  renderPrizes();
 
   isDrawing = false;
   document.getElementById("drawBtn").disabled = false;
@@ -687,6 +940,7 @@ function backToSetup(){
   document.getElementById("wheelPage").classList.add("hidden");
   document.getElementById("setupPage").classList.remove("hidden");
   renderList();
+  renderPrizes();
   window.scrollTo({top:0,behavior:"smooth"});
 }
 
@@ -698,6 +952,17 @@ function escapeAttr(str){
     .replaceAll(">","&gt;");
 }
 
+function escapeHtml(str){
+  return String(str ?? "")
+    .replaceAll("&","&amp;")
+    .replaceAll("<","&lt;")
+    .replaceAll(">","&gt;")
+    .replaceAll('"',"&quot;")
+    .replaceAll("'","&#039;");
+}
+
+prizes = defaultPrizes();
+renderPrizes();
 generateList();
 </script>
 
