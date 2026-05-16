@@ -36,13 +36,8 @@ h1{
   text-align:center;
 }
 
-h1 .mushroom{
-  flex-shrink:0;
-}
-
-h1 .title-text{
-  white-space:nowrap;
-}
+h1 .mushroom{flex-shrink:0}
+h1 .title-text{white-space:nowrap}
 
 .container{
   max-width:1250px;
@@ -113,13 +108,8 @@ button:disabled{
   text-align:left;
 }
 
-.prize-table th{
-  background:#ffe7b7;
-}
-
-.prize-table input{
-  width:100%;
-}
+.prize-table th{background:#ffe7b7}
+.prize-table input{width:100%}
 
 .prize-badge{
   display:inline-block;
@@ -299,9 +289,7 @@ button:disabled{
   padding:20px;
 }
 
-.lock{
-  background:rgba(255,253,246,.97);
-}
+.lock{background:rgba(255,253,246,.97)}
 
 .lock-box{
   width:min(760px,95%);
@@ -400,21 +388,10 @@ button:disabled{
     font-size:11px;
   }
 
-  .winner-title{
-    font-size:30px;
-  }
-
-  .winner-prize{
-    font-size:22px;
-  }
-
-  .winner-name{
-    font-size:28px;
-  }
-
-  .lock-box p{
-    font-size:24px;
-  }
+  .winner-title{font-size:30px}
+  .winner-prize{font-size:22px}
+  .winner-name{font-size:28px}
+  .lock-box p{font-size:24px}
 
   #passwordInput{
     font-size:26px;
@@ -544,7 +521,7 @@ button:disabled{
       <input id="drawCount" type="number" value="1" min="1" style="width:110px">
 
       <label>
-        <input id="noRepeat" type="checkbox" checked>
+        <input id="noRepeat" type="checkbox">
         不重複中獎
       </label>
     </div>
@@ -849,14 +826,12 @@ function selectRange(){
 
 function selectAll(){
   saveAllInputs();
-
   participants.forEach(p=>p.checked=true);
   renderList();
 }
 
 function unselectAll(){
   saveAllInputs();
-
   participants.forEach(p=>p.checked=false);
   renderList();
 }
@@ -1007,6 +982,19 @@ function startDraw(){
     return;
   }
 
+  const confirmText =
+`請確認本次抽獎資訊：
+
+目前獎項：${prize.name}
+抽取數量：${count}
+參與人數：${activeParticipants.length}
+
+是否開始抽獎？`;
+
+  if(!confirm(confirmText)){
+    return;
+  }
+
   pendingPrizeId = prize.id;
   pendingWinners = pickWinners(count);
   drawQueue = [...pendingWinners];
@@ -1104,7 +1092,11 @@ function finishDraw(){
   document.getElementById("currentResult").textContent = text;
 
   const time = new Date().toLocaleString("zh-TW",{hour12:false});
-  records.unshift(`${time}\n【${prizeName}】\n${text}`);
+  const verifyCode = makeVerifyCode(
+    `${time}|${prizeName}|${JSON.stringify(pendingWinners)}|${activeParticipants.length}`
+  );
+
+  records.unshift(`${time}\n【${prizeName}】\n${text}\n公平性驗證碼：${verifyCode}`);
 
   renderRecords();
 
@@ -1182,6 +1174,27 @@ function backToSetup(){
   renderPrizes();
 
   window.scrollTo({top:0,behavior:"smooth"});
+}
+
+function makeVerifyCode(str){
+  let h1 = 0xdeadbeef;
+  let h2 = 0x41c6ce57;
+
+  for(let i=0;i<str.length;i++){
+    const ch = str.charCodeAt(i);
+    h1 = Math.imul(h1 ^ ch, 2654435761);
+    h2 = Math.imul(h2 ^ ch, 1597334677);
+  }
+
+  h1 = Math.imul(h1 ^ (h1 >>> 16), 2246822507) ^
+       Math.imul(h2 ^ (h2 >>> 13), 3266489909);
+
+  h2 = Math.imul(h2 ^ (h2 >>> 16), 2246822507) ^
+       Math.imul(h1 ^ (h1 >>> 13), 3266489909);
+
+  const n = 4294967296 * (2097151 & h2) + (h1 >>> 0);
+
+  return "V-" + n.toString(36).toUpperCase();
 }
 
 function escapeAttr(str){
