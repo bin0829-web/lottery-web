@@ -1,0 +1,352 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>綜合抽獎中心</title>
+<style>
+*{box-sizing:border-box}
+body{
+  margin:0;
+  font-family:"Microsoft JhengHei",Arial,sans-serif;
+  background:linear-gradient(135deg,#111827,#1f2937);
+  color:#fff;
+}
+header{
+  text-align:center;
+  padding:28px 16px 12px;
+}
+h1{margin:0;font-size:32px}
+p{color:#cbd5e1}
+.container{
+  max-width:1100px;
+  margin:auto;
+  padding:20px;
+}
+.grid{
+  display:grid;
+  grid-template-columns:repeat(auto-fit,minmax(220px,1fr));
+  gap:16px;
+}
+.card{
+  background:#1f2937;
+  border:1px solid #374151;
+  border-radius:18px;
+  padding:20px;
+  cursor:pointer;
+  transition:.2s;
+}
+.card:hover{
+  transform:translateY(-4px);
+  border-color:#facc15;
+}
+.card h2{margin-top:0;color:#facc15}
+.page{display:none}
+.page.active{display:block}
+.panel{
+  background:#111827;
+  border:1px solid #374151;
+  border-radius:18px;
+  padding:20px;
+  margin-bottom:16px;
+}
+textarea,input,select{
+  width:100%;
+  padding:12px;
+  border-radius:10px;
+  border:1px solid #4b5563;
+  background:#020617;
+  color:#fff;
+  margin:6px 0 12px;
+}
+button{
+  border:0;
+  border-radius:12px;
+  padding:12px 18px;
+  background:#facc15;
+  color:#111827;
+  font-weight:bold;
+  cursor:pointer;
+  margin:4px;
+}
+button.secondary{
+  background:#374151;
+  color:#fff;
+}
+button.danger{
+  background:#ef4444;
+  color:#fff;
+}
+.result{
+  font-size:28px;
+  color:#facc15;
+  font-weight:bold;
+  text-align:center;
+  padding:18px;
+}
+.list{
+  background:#020617;
+  border-radius:12px;
+  padding:12px;
+  white-space:pre-wrap;
+}
+.small{font-size:14px;color:#94a3b8}
+</style>
+</head>
+<body>
+
+<header>
+  <h1>🎁 綜合抽獎中心</h1>
+  <p>名單抽獎｜加權抽獎｜號碼抽獎｜隨機分組｜隨機排序</p>
+</header>
+
+<div class="container">
+
+  <div id="home" class="page active">
+    <div class="grid">
+      <div class="card" onclick="showPage('normal')">
+        <h2>名單抽獎</h2>
+        <p>每人一票，可一次抽出多人，不重複中獎。</p>
+      </div>
+      <div class="card" onclick="showPage('weighted')">
+        <h2>票數加權抽獎</h2>
+        <p>每人可設定不同票數，票越多機率越高。</p>
+      </div>
+      <div class="card" onclick="showPage('number')">
+        <h2>號碼抽獎</h2>
+        <p>輸入起訖號碼，隨機抽出指定數量。</p>
+      </div>
+      <div class="card" onclick="showPage('group')">
+        <h2>隨機分組</h2>
+        <p>將名單隨機分成指定組數。</p>
+      </div>
+      <div class="card" onclick="showPage('shuffle')">
+        <h2>隨機排序</h2>
+        <p>將名單洗牌，決定順序。</p>
+      </div>
+    </div>
+  </div>
+
+  <div id="normal" class="page">
+    <button class="secondary" onclick="showPage('home')">← 回首頁</button>
+    <div class="panel">
+      <h2>名單抽獎</h2>
+      <p class="small">每行輸入一個名字</p>
+      <textarea id="normalList" rows="8" placeholder="小明&#10;小華&#10;小美"></textarea>
+      <label>抽出人數</label>
+      <input id="normalCount" type="number" value="1" min="1">
+      <button onclick="drawNormal()">開始抽獎</button>
+      <button class="danger" onclick="clearResult('normalResult')">清除結果</button>
+      <div id="normalResult" class="result"></div>
+    </div>
+  </div>
+
+  <div id="weighted" class="page">
+    <button class="secondary" onclick="showPage('home')">← 回首頁</button>
+    <div class="panel">
+      <h2>票數加權抽獎</h2>
+      <p class="small">格式：名稱,票數，例如：小明,5</p>
+      <textarea id="weightedList" rows="8" placeholder="小明,5&#10;小華,2&#10;小美,1"></textarea>
+      <label>抽出人數</label>
+      <input id="weightedCount" type="number" value="1" min="1">
+      <button onclick="drawWeighted()">開始加權抽獎</button>
+      <button class="secondary" onclick="showRate()">顯示中獎率</button>
+      <button class="danger" onclick="clearResult('weightedResult')">清除結果</button>
+      <div id="weightedResult" class="result"></div>
+      <div id="rateList" class="list"></div>
+    </div>
+  </div>
+
+  <div id="number" class="page">
+    <button class="secondary" onclick="showPage('home')">← 回首頁</button>
+    <div class="panel">
+      <h2>號碼抽獎</h2>
+      <label>起始號碼</label>
+      <input id="numStart" type="number" value="1">
+      <label>結束號碼</label>
+      <input id="numEnd" type="number" value="100">
+      <label>抽出數量</label>
+      <input id="numCount" type="number" value="1" min="1">
+      <label>排除號碼，可用逗號分隔</label>
+      <input id="numExclude" placeholder="例如：3,8,15">
+      <button onclick="drawNumber()">開始抽號碼</button>
+      <button class="danger" onclick="clearResult('numberResult')">清除結果</button>
+      <div id="numberResult" class="result"></div>
+    </div>
+  </div>
+
+  <div id="group" class="page">
+    <button class="secondary" onclick="showPage('home')">← 回首頁</button>
+    <div class="panel">
+      <h2>隨機分組</h2>
+      <textarea id="groupList" rows="8" placeholder="小明&#10;小華&#10;小美&#10;阿強"></textarea>
+      <label>分成幾組</label>
+      <input id="groupCount" type="number" value="2" min="1">
+      <button onclick="makeGroups()">開始分組</button>
+      <button class="danger" onclick="clearResult('groupResult')">清除結果</button>
+      <div id="groupResult" class="list"></div>
+    </div>
+  </div>
+
+  <div id="shuffle" class="page">
+    <button class="secondary" onclick="showPage('home')">← 回首頁</button>
+    <div class="panel">
+      <h2>隨機排序</h2>
+      <textarea id="shuffleList" rows="8" placeholder="小明&#10;小華&#10;小美"></textarea>
+      <button onclick="shuffleNames()">開始排序</button>
+      <button class="danger" onclick="clearResult('shuffleResult')">清除結果</button>
+      <div id="shuffleResult" class="list"></div>
+    </div>
+  </div>
+
+</div>
+
+<script>
+function showPage(id){
+  document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+}
+
+function getLines(id){
+  return document.getElementById(id).value
+    .split('\n')
+    .map(x=>x.trim())
+    .filter(Boolean);
+}
+
+function shuffle(arr){
+  let a=[...arr];
+  for(let i=a.length-1;i>0;i--){
+    const j=Math.floor(Math.random()*(i+1));
+    [a[i],a[j]]=[a[j],a[i]];
+  }
+  return a;
+}
+
+function clearResult(id){
+  document.getElementById(id).innerHTML='';
+}
+
+function drawNormal(){
+  const names=getLines('normalList');
+  const count=Number(document.getElementById('normalCount').value);
+  if(!names.length) return alert('請輸入名單');
+  if(count>names.length) return alert('抽出人數不可大於名單人數');
+
+  const winners=shuffle(names).slice(0,count);
+  document.getElementById('normalResult').innerHTML=
+    '🎉 中獎者：<br>' + winners.join('<br>');
+}
+
+function parseWeighted(){
+  const rows=getLines('weightedList');
+  const data=[];
+  rows.forEach(row=>{
+    const parts=row.split(',');
+    const name=parts[0]?.trim();
+    const weight=Number(parts[1]);
+    if(name && weight>0){
+      data.push({name,weight});
+    }
+  });
+  return data;
+}
+
+function drawWeighted(){
+  let data=parseWeighted();
+  const count=Number(document.getElementById('weightedCount').value);
+  if(!data.length) return alert('請輸入加權名單');
+  if(count>data.length) return alert('抽出人數不可大於人數');
+
+  const winners=[];
+
+  while(winners.length<count){
+    const total=data.reduce((sum,x)=>sum+x.weight,0);
+    let r=Math.random()*total;
+    let pickedIndex=0;
+
+    for(let i=0;i<data.length;i++){
+      r-=data[i].weight;
+      if(r<=0){
+        pickedIndex=i;
+        break;
+      }
+    }
+
+    winners.push(data[pickedIndex].name);
+    data.splice(pickedIndex,1);
+  }
+
+  document.getElementById('weightedResult').innerHTML=
+    '🎉 中獎者：<br>' + winners.join('<br>');
+}
+
+function showRate(){
+  const data=parseWeighted();
+  if(!data.length) return alert('請輸入加權名單');
+
+  const total=data.reduce((sum,x)=>sum+x.weight,0);
+  const text=data.map(x=>{
+    const rate=((x.weight/total)*100).toFixed(2);
+    return `${x.name}｜票數：${x.weight}｜中獎率：約 ${rate}%`;
+  }).join('\n');
+
+  document.getElementById('rateList').textContent=text;
+}
+
+function drawNumber(){
+  const start=Number(document.getElementById('numStart').value);
+  const end=Number(document.getElementById('numEnd').value);
+  const count=Number(document.getElementById('numCount').value);
+  const exclude=document.getElementById('numExclude').value
+    .split(',')
+    .map(x=>Number(x.trim()))
+    .filter(x=>!isNaN(x));
+
+  if(start>end) return alert('起始號碼不可大於結束號碼');
+
+  let nums=[];
+  for(let i=start;i<=end;i++){
+    if(!exclude.includes(i)) nums.push(i);
+  }
+
+  if(count>nums.length) return alert('抽出數量不可大於可抽號碼數量');
+
+  const winners=shuffle(nums).slice(0,count);
+  document.getElementById('numberResult').innerHTML=
+    '🎉 中獎號碼：<br>' + winners.join('、');
+}
+
+function makeGroups(){
+  const names=shuffle(getLines('groupList'));
+  const groupCount=Number(document.getElementById('groupCount').value);
+  if(!names.length) return alert('請輸入名單');
+  if(groupCount<=0) return alert('組數需大於 0');
+
+  const groups=Array.from({length:groupCount},()=>[]);
+  names.forEach((name,i)=>{
+    groups[i%groupCount].push(name);
+  });
+
+  let text='';
+  groups.forEach((g,i)=>{
+    text+=`第 ${i+1} 組：\n${g.join('\n')}\n\n`;
+  });
+
+  document.getElementById('groupResult').textContent=text;
+}
+
+function shuffleNames(){
+  const names=getLines('shuffleList');
+  if(!names.length) return alert('請輸入名單');
+
+  const result=shuffle(names)
+    .map((name,i)=>`${i+1}. ${name}`)
+    .join('\n');
+
+  document.getElementById('shuffleResult').textContent=result;
+}
+</script>
+
+</body>
+</html>
