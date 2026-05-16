@@ -4,8 +4,10 @@
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 <title>NM4DJ專屬幸運轉盤</title>
+
 <style>
 *{box-sizing:border-box}
+
 body{
   margin:0;
   font-family:"Microsoft JhengHei",Arial,sans-serif;
@@ -13,10 +15,41 @@ body{
   color:#3b2a1a;
   overflow-x:hidden;
 }
+
 .hidden{display:none!important}
-header{text-align:center;padding:20px 12px 8px}
-h1{margin:0;color:#8b4513}
-.container{max-width:1250px;margin:auto;padding:16px}
+
+header{
+  text-align:center;
+  padding:20px 12px 8px;
+}
+
+h1{
+  margin:0;
+  color:#8b4513;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  gap:18px;
+  flex-wrap:nowrap;
+  font-size:56px;
+  line-height:1.1;
+  text-align:center;
+}
+
+h1 .mushroom{
+  flex-shrink:0;
+}
+
+h1 .title-text{
+  white-space:nowrap;
+}
+
+.container{
+  max-width:1250px;
+  margin:auto;
+  padding:16px;
+}
+
 .panel{
   background:#fff8ec;
   border:4px solid #9b642f;
@@ -25,13 +58,21 @@ h1{margin:0;color:#8b4513}
   margin-bottom:16px;
   box-shadow:0 8px 18px rgba(0,0,0,.08);
 }
-.row{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
+
+.row{
+  display:flex;
+  gap:10px;
+  flex-wrap:wrap;
+  align-items:center;
+}
+
 input,button,select{
   border-radius:14px;
   padding:10px 14px;
   border:3px solid #f6b26b;
   font-size:16px;
 }
+
 button{
   cursor:pointer;
   font-weight:bold;
@@ -40,11 +81,21 @@ button{
   border:4px solid #8b5a2b;
   box-shadow:0 5px 0 #7a4a20;
 }
+
 button.red{background:#ef4444;color:white}
 button.blue{background:#60a5fa;color:white}
 button.gray{background:#e5e7eb;color:#333}
 button.orange{background:#fbbf24;color:#4a2a00}
-button:active{transform:translateY(3px);box-shadow:0 1px 0 #7a4a20}
+
+button:active{
+  transform:translateY(3px);
+  box-shadow:0 1px 0 #7a4a20;
+}
+
+button:disabled{
+  opacity:.55;
+  cursor:not-allowed;
+}
 
 .prize-table{
   width:100%;
@@ -54,17 +105,22 @@ button:active{transform:translateY(3px);box-shadow:0 1px 0 #7a4a20}
   border-radius:14px;
   overflow:hidden;
 }
-.prize-table th,.prize-table td{
+
+.prize-table th,
+.prize-table td{
   border-bottom:1px solid #e6c7a3;
   padding:10px;
   text-align:left;
 }
+
 .prize-table th{
   background:#ffe7b7;
 }
+
 .prize-table input{
   width:100%;
 }
+
 .prize-badge{
   display:inline-block;
   background:#fff1c7;
@@ -81,16 +137,36 @@ button:active{transform:translateY(3px);box-shadow:0 1px 0 #7a4a20}
   gap:10px;
   margin-top:14px;
 }
+
 .item{
   background:white;
   border:2px solid #e6c7a3;
   border-radius:14px;
   padding:10px;
 }
-.item.checked{background:#fff1c7;border-color:#9b642f}
-.item-top{display:flex;align-items:center;gap:8px;margin-bottom:8px}
-.item input[type="text"],.item input[type="number"]{width:100%;margin-top:4px}
-.item label{font-size:13px;color:#6b4b2b}
+
+.item.checked{
+  background:#fff1c7;
+  border-color:#9b642f;
+}
+
+.item-top{
+  display:flex;
+  align-items:center;
+  gap:8px;
+  margin-bottom:8px;
+}
+
+.item input[type="text"],
+.item input[type="number"]{
+  width:100%;
+  margin-top:4px;
+}
+
+.item label{
+  font-size:13px;
+  color:#6b4b2b;
+}
 
 .main-wheel{
   display:grid;
@@ -98,6 +174,7 @@ button:active{transform:translateY(3px);box-shadow:0 1px 0 #7a4a20}
   gap:24px;
   align-items:center;
 }
+
 .wheel-area{
   text-align:center;
   min-height:620px;
@@ -106,8 +183,10 @@ button:active{transform:translateY(3px);box-shadow:0 1px 0 #7a4a20}
   align-items:center;
   justify-content:center;
 }
+
 .pointer{
-  width:0;height:0;
+  width:0;
+  height:0;
   border-left:24px solid transparent;
   border-right:24px solid transparent;
   border-top:56px solid #ef4444;
@@ -115,6 +194,7 @@ button:active{transform:translateY(3px);box-shadow:0 1px 0 #7a4a20}
   position:relative;
   z-index:3;
 }
+
 .wheel-frame{
   width:560px;
   height:560px;
@@ -127,6 +207,7 @@ button:active{transform:translateY(3px);box-shadow:0 1px 0 #7a4a20}
   box-shadow:0 12px 28px rgba(0,0,0,.25);
   background:white;
 }
+
 .wheel-spin{
   width:100%;
   height:100%;
@@ -136,6 +217,7 @@ button:active{transform:translateY(3px);box-shadow:0 1px 0 #7a4a20}
   will-change:transform;
   transform:rotate(0deg);
 }
+
 .wheel-center{
   position:absolute;
   left:50%;
@@ -153,6 +235,7 @@ button:active{transform:translateY(3px);box-shadow:0 1px 0 #7a4a20}
   font-size:22px;
   z-index:5;
 }
+
 .label{
   position:absolute;
   left:50%;
@@ -175,6 +258,7 @@ button:active{transform:translateY(3px);box-shadow:0 1px 0 #7a4a20}
   pointer-events:none;
   z-index:2;
 }
+
 .result-box{
   background:#fff8ec;
   border:4px solid #9b642f;
@@ -182,12 +266,14 @@ button:active{transform:translateY(3px);box-shadow:0 1px 0 #7a4a20}
   padding:20px;
   text-align:center;
 }
+
 .big-result{
   color:#dc2626;
   font-size:34px;
   font-weight:bold;
   line-height:1.6;
 }
+
 .record{
   background:white;
   border:2px dashed #f6b26b;
@@ -200,7 +286,9 @@ button:active{transform:translateY(3px);box-shadow:0 1px 0 #7a4a20}
   white-space:pre-wrap;
   line-height:1.6;
 }
-.lock,.winner-mask{
+
+.lock,
+.winner-mask{
   position:fixed;
   inset:0;
   background:rgba(0,0,0,.45);
@@ -210,29 +298,36 @@ button:active{transform:translateY(3px);box-shadow:0 1px 0 #7a4a20}
   z-index:99;
   padding:20px;
 }
-.lock{background:rgba(255,253,246,.97)}
+
+.lock{
+  background:rgba(255,253,246,.97);
+}
+
 .lock-box{
-  width:min(720px,95%);
+  width:min(760px,95%);
   text-align:center;
 }
-.lock-box h1{font-size:56px}
+
 .lock-box p{
   text-align:center;
   font-size:34px;
   margin:24px 0;
 }
+
 #passwordInput{
   width:100%;
   text-align:center;
   font-size:34px;
   height:82px;
 }
+
 .login-btn{
   min-width:220px;
   height:86px;
   font-size:40px;
   margin-top:24px;
 }
+
 .winner-box{
   width:min(760px,95%);
   background:#fff8ec;
@@ -242,18 +337,21 @@ button:active{transform:translateY(3px);box-shadow:0 1px 0 #7a4a20}
   padding:34px 22px;
   box-shadow:0 20px 60px rgba(0,0,0,.35);
 }
+
 .winner-title{
   font-size:40px;
   color:#dc2626;
   font-weight:bold;
   margin-bottom:20px;
 }
+
 .winner-prize{
   font-size:28px;
   color:#92400e;
   font-weight:bold;
   margin-bottom:12px;
 }
+
 .winner-name{
   font-size:38px;
   color:#7e22ce;
@@ -261,37 +359,94 @@ button:active{transform:translateY(3px);box-shadow:0 1px 0 #7a4a20}
   line-height:1.5;
   margin-bottom:18px;
 }
+
 .winner-time{
   font-size:20px;
   color:#374151;
   margin-bottom:20px;
 }
-.small{font-size:14px;color:#7c5a35}
+
+.small{
+  font-size:14px;
+  color:#7c5a35;
+}
 
 @media(max-width:900px){
-  .main-wheel{grid-template-columns:1fr}
-  .wheel-area{min-height:430px}
-  .wheel-frame{width:360px;height:360px}
-  .label{width:90px;margin-left:-45px;font-size:11px}
-  .winner-title{font-size:30px}
-  .winner-prize{font-size:22px}
-  .winner-name{font-size:28px}
-  .lock-box h1{font-size:32px}
-  .lock-box p{font-size:24px}
-  #passwordInput{font-size:26px;height:70px}
-  .login-btn{font-size:32px;height:76px}
+  h1{
+    font-size:36px;
+    gap:8px;
+  }
+
+  h1 .title-text{
+    white-space:normal;
+  }
+
+  .main-wheel{
+    grid-template-columns:1fr;
+  }
+
+  .wheel-area{
+    min-height:430px;
+  }
+
+  .wheel-frame{
+    width:360px;
+    height:360px;
+  }
+
+  .label{
+    width:90px;
+    margin-left:-45px;
+    font-size:11px;
+  }
+
+  .winner-title{
+    font-size:30px;
+  }
+
+  .winner-prize{
+    font-size:22px;
+  }
+
+  .winner-name{
+    font-size:28px;
+  }
+
+  .lock-box p{
+    font-size:24px;
+  }
+
+  #passwordInput{
+    font-size:26px;
+    height:70px;
+  }
+
+  .login-btn{
+    font-size:32px;
+    height:76px;
+  }
 }
 </style>
 </head>
+
 <body>
 
 <div id="lock" class="lock">
   <div class="panel lock-box">
-    <h1>🍄 NM4DJ專屬幸運轉盤 🍄</h1>
+    <h1>
+      <span class="mushroom">🍄</span>
+      <span class="title-text">NM4DJ專屬幸運轉盤</span>
+      <span class="mushroom">🍄</span>
+    </h1>
+
     <p>請先輸入密碼</p>
+
     <input id="passwordInput" type="password" placeholder="請輸入密碼">
+
     <br>
+
     <button class="login-btn" onclick="login()">進入</button>
+
     <p id="passwordMsg" class="small"></p>
   </div>
 </div>
@@ -307,7 +462,11 @@ button:active{transform:translateY(3px);box-shadow:0 1px 0 #7a4a20}
 </div>
 
 <header>
-  <h1>🍄 NM4DJ專屬幸運轉盤 🍄</h1>
+  <h1>
+    <span class="mushroom">🍄</span>
+    <span class="title-text">NM4DJ專屬幸運轉盤</span>
+    <span class="mushroom">🍄</span>
+  </h1>
 </header>
 
 <div class="container">
@@ -316,7 +475,9 @@ button:active{transform:translateY(3px);box-shadow:0 1px 0 #7a4a20}
 
   <div class="panel">
     <h2>獎項設定</h2>
-    <p class="small">可設定多個獎項與名額。轉盤頁會選擇目前要抽的獎項，抽取數量會自動帶入剩餘名額。</p>
+    <p class="small">
+      可設定多個獎項與名額。轉盤頁會選擇目前要抽的獎項，抽取數量會自動帶入剩餘名額。
+    </p>
 
     <div class="row">
       <button class="orange" onclick="addPrize()">新增獎項</button>
@@ -339,7 +500,9 @@ button:active{transform:translateY(3px);box-shadow:0 1px 0 #7a4a20}
 
   <div class="panel">
     <h2>抽獎名單設定</h2>
-    <p class="small">預設 60 個號碼。沒有輸入名稱時，會使用號碼代表；沒有輸入權重時，權重自動為 1。</p>
+    <p class="small">
+      預設 60 個號碼。沒有輸入名稱時，會使用號碼代表；沒有輸入權重時，權重自動為 1。
+    </p>
 
     <div class="row">
       <span>名單數量：</span>
@@ -367,9 +530,11 @@ button:active{transform:translateY(3px);box-shadow:0 1px 0 #7a4a20}
 
     <div id="listGrid" class="list-grid"></div>
   </div>
+
 </section>
 
 <section id="wheelPage" class="hidden">
+
   <div class="panel">
     <div class="row" style="justify-content:center">
       <span>目前獎項：</span>
@@ -413,6 +578,7 @@ button:active{transform:translateY(3px);box-shadow:0 1px 0 #7a4a20}
       <div id="records" class="record">尚無紀錄</div>
     </div>
   </div>
+
 </section>
 
 </div>
@@ -440,6 +606,7 @@ const colors = [
 
 function login(){
   const pw = document.getElementById("passwordInput").value;
+
   if(pw === PASSWORD){
     document.getElementById("lock").classList.add("hidden");
   }else{
@@ -451,6 +618,10 @@ document.getElementById("passwordInput").addEventListener("keydown",e=>{
   if(e.key==="Enter") login();
 });
 
+function makeId(){
+  return "p_" + Date.now() + "_" + Math.floor(Math.random()*999999);
+}
+
 function defaultPrizes(){
   return [
     {id:makeId(), name:"一獎", quota:1, drawn:0},
@@ -459,16 +630,13 @@ function defaultPrizes(){
   ];
 }
 
-function makeId(){
-  return "p_" + Date.now() + "_" + Math.floor(Math.random()*999999);
-}
-
 function renderPrizes(){
   const body = document.getElementById("prizeBody");
   body.innerHTML = "";
 
-  prizes.forEach((p,index)=>{
+  prizes.forEach(p=>{
     const tr = document.createElement("tr");
+
     tr.innerHTML = `
       <td>
         <input value="${escapeAttr(p.name)}" oninput="updatePrizeName('${p.id}',this.value)">
@@ -483,6 +651,7 @@ function renderPrizes(){
         <button class="red" onclick="deletePrize('${p.id}')">刪除</button>
       </td>
     `;
+
     body.appendChild(tr);
   });
 }
@@ -513,6 +682,7 @@ function addPrize(){
     quota:1,
     drawn:0
   });
+
   renderPrizes();
 }
 
@@ -530,12 +700,14 @@ function deletePrize(id){
 
 function resetPrizeDefaults(){
   if(!confirm("確定恢復預設獎項？目前獎項設定會被覆蓋。")) return;
+
   prizes = defaultPrizes();
   renderPrizes();
 }
 
 function clearPrizeRecords(){
   if(!confirm("確定清空所有獎項已抽數量？")) return;
+
   prizes.forEach(p=>p.drawn=0);
   renderPrizes();
   renderPrizeSelect();
@@ -549,13 +721,16 @@ function renderPrizeSelect(){
   prizes.forEach(p=>{
     const remain = Math.max(p.quota - p.drawn,0);
     const option = document.createElement("option");
+
     option.value = p.id;
     option.textContent = `${p.name}｜剩餘 ${remain} / ${p.quota}`;
     option.disabled = remain <= 0;
+
     select.appendChild(option);
   });
 
   const firstAvailable = prizes.find(p=>p.quota - p.drawn > 0);
+
   if(firstAvailable){
     select.value = firstAvailable.id;
   }
@@ -574,6 +749,7 @@ function changeCurrentPrize(){
 
   const remain = Math.max(prize.quota - prize.drawn,0);
   document.getElementById("drawCount").value = remain > 0 ? remain : 1;
+
   updatePrizeSummary();
 }
 
@@ -583,12 +759,14 @@ function updatePrizeSummary(){
 
   box.innerHTML = prizes.map(p=>{
     const remain = Math.max(p.quota - p.drawn,0);
+
     return `<span class="prize-badge">🎁 ${escapeHtml(p.name)}｜已抽 ${p.drawn} / ${p.quota}｜剩餘 ${remain}</span>`;
   }).join("");
 }
 
 function generateList(){
   const newTotal = Number(document.getElementById("totalInput").value);
+
   if(!newTotal || newTotal < 1){
     alert("名單數量至少要 1");
     return;
@@ -602,7 +780,12 @@ function generateList(){
   participants = [];
 
   for(let i=1;i<=total;i++){
-    participants.push({number:i,checked:true,name:"",weight:""});
+    participants.push({
+      number:i,
+      checked:true,
+      name:"",
+      weight:""
+    });
   }
 
   document.getElementById("rangeEnd").value = total;
@@ -615,56 +798,72 @@ function renderList(){
 
   participants.forEach(p=>{
     const div = document.createElement("div");
+
     div.className = "item" + (p.checked ? " checked" : "");
     div.id = `item_${p.number}`;
+
     div.innerHTML = `
       <div class="item-top">
         <input type="checkbox" id="check_${p.number}" ${p.checked ? "checked" : ""} onchange="syncItem(${p.number})">
         <strong>No.${p.number}</strong>
       </div>
+
       <label>名稱</label>
       <input type="text" id="name_${p.number}" value="${escapeAttr(p.name)}" placeholder="未填則使用 ${p.number}" oninput="syncItem(${p.number})">
+
       <label>權重</label>
       <input type="number" id="weight_${p.number}" value="${escapeAttr(p.weight)}" min="0" placeholder="1" oninput="syncItem(${p.number})">
     `;
+
     box.appendChild(div);
   });
 }
 
 function syncItem(num){
   const p = participants.find(x=>x.number===num);
+
   p.checked = document.getElementById(`check_${num}`).checked;
   p.name = document.getElementById(`name_${num}`).value;
   p.weight = document.getElementById(`weight_${num}`).value;
+
   document.getElementById(`item_${num}`).classList.toggle("checked",p.checked);
 }
 
 function selectRange(){
   saveAllInputs();
+
   const s = Number(document.getElementById("rangeStart").value);
   const e = Number(document.getElementById("rangeEnd").value);
+
   if(!s || !e || s > e){
     alert("請輸入正確範圍");
     return;
   }
-  participants.forEach(p=>p.checked = p.number >= s && p.number <= e);
+
+  participants.forEach(p=>{
+    p.checked = p.number >= s && p.number <= e;
+  });
+
   renderList();
 }
 
 function selectAll(){
   saveAllInputs();
+
   participants.forEach(p=>p.checked=true);
   renderList();
 }
 
 function unselectAll(){
   saveAllInputs();
+
   participants.forEach(p=>p.checked=false);
   renderList();
 }
 
 function clearNames(){
   if(!confirm("確定清空全部名稱？")) return;
+
   saveAllInputs();
   participants.forEach(p=>p.name="");
   renderList();
@@ -672,6 +871,7 @@ function clearNames(){
 
 function clearWeights(){
   if(!confirm("確定將全部權重重設為 1？")) return;
+
   saveAllInputs();
   participants.forEach(p=>p.weight="");
   renderList();
@@ -682,6 +882,7 @@ function saveAllInputs(){
     const n = document.getElementById(`name_${p.number}`);
     const w = document.getElementById(`weight_${p.number}`);
     const c = document.getElementById(`check_${p.number}`);
+
     if(n) p.name = n.value;
     if(w) p.weight = w.value;
     if(c) p.checked = c.checked;
@@ -690,6 +891,7 @@ function saveAllInputs(){
 
 function getSelectedParticipants(){
   saveAllInputs();
+
   return participants
     .filter(p=>p.checked)
     .map(p=>({
@@ -727,7 +929,7 @@ function buildWheel(){
   requestAnimationFrame(()=>{
     setTimeout(()=>{
       renderWheel(activeParticipants);
-    },80);
+    },100);
   });
 }
 
@@ -737,6 +939,7 @@ function renderWheel(list){
 
   const totalWeight = list.reduce((s,x)=>s+x.weight,0);
   const isSameWeight = list.every(x=>x.weight === list[0].weight);
+
   let gradient = [];
   let current = 0;
 
@@ -755,11 +958,14 @@ function renderWheel(list){
 
     const label = document.createElement("div");
     label.className = "label";
+
     label.textContent = isSameWeight
       ? p.name
       : `${p.name} ${((p.weight/totalWeight)*100).toFixed(1)}%`;
 
-    label.style.transform = `rotate(${mid}deg) translateY(-${labelDistance}px) rotate(90deg)`;
+    label.style.transform =
+      `rotate(${mid}deg) translateY(-${labelDistance}px) rotate(90deg)`;
+
     wheel.appendChild(label);
     current = end;
   });
@@ -771,18 +977,21 @@ function startDraw(){
   if(isDrawing) return;
 
   const prize = getCurrentPrize();
+
   if(!prize){
     alert("請選擇獎項。");
     return;
   }
 
   const remain = prize.quota - prize.drawn;
+
   if(remain <= 0){
     alert("此獎項已抽完，請選擇其他獎項。");
     return;
   }
 
   const count = Number(document.getElementById("drawCount").value);
+
   if(!count || count < 1){
     alert("抽取數量至少為 1");
     return;
@@ -813,12 +1022,15 @@ function startDraw(){
 function pickWinners(count){
   const pool = [...activeParticipants];
   const winners = [];
+
   for(let i=0;i<count;i++){
     const winner = weightedPick(pool);
     winners.push(winner);
+
     const idx = pool.findIndex(x=>x.number===winner.number);
     pool.splice(idx,1);
   }
+
   return winners;
 }
 
@@ -831,26 +1043,32 @@ function spinNextWinner(){
   const wheel = document.getElementById("wheelSpin");
 
   document.getElementById("resultTitle").textContent = "抽獎中...";
-  document.getElementById("resultSub").textContent = `第 ${drawIndex + 1} 位抽獎中｜${prize ? prize.name : ""}`;
+  document.getElementById("resultSub").textContent =
+    `第 ${drawIndex + 1} 位抽獎中｜${prize ? prize.name : ""}`;
 
   rotation += 1800 + Math.floor(Math.random()*1440);
   wheel.style.transform = `rotate(${rotation}deg)`;
 
-  setTimeout(()=>showWinnerModal(winner),4100);
+  setTimeout(()=>{
+    showWinnerModal(winner);
+  },4100);
 }
 
 function showWinnerModal(winner){
   const now = new Date().toLocaleString("zh-TW",{hour12:false});
   const prize = prizes.find(p=>p.id===pendingPrizeId);
 
-  document.getElementById("winnerPrize").textContent = prize ? `🎁 ${prize.name}` : "";
+  document.getElementById("winnerPrize").textContent =
+    prize ? `🎁 ${prize.name}` : "";
 
   document.getElementById("winnerName").textContent =
     pendingWinners.length === 1
       ? `第 1 位：${winner.name}`
       : `第 ${drawIndex + 1} 位：${winner.name}`;
 
-  document.getElementById("winnerTime").textContent = `抽獎時間：${now}`;
+  document.getElementById("winnerTime").textContent =
+    `抽獎時間：${now}`;
+
   document.getElementById("winnerBtn").textContent =
     drawIndex < pendingWinners.length - 1 ? "下一位" : "確認";
 
@@ -859,6 +1077,7 @@ function showWinnerModal(winner){
 
 function winnerModalNext(){
   document.getElementById("winnerMask").classList.add("hidden");
+
   drawIndex++;
 
   if(drawIndex < drawQueue.length){
@@ -873,18 +1092,25 @@ function finishDraw(){
   const noRepeat = document.getElementById("noRepeat").checked;
   const prize = prizes.find(p=>p.id===pendingPrizeId);
   const prizeName = prize ? prize.name : "未命名獎項";
-  const text = pendingWinners.map((w,i)=>`第 ${i+1} 位：${w.name}（${w.number}號）`).join("\n");
+
+  const text = pendingWinners
+    .map((w,i)=>`第 ${i+1} 位：${w.name}（${w.number}號）`)
+    .join("\n");
 
   document.getElementById("resultTitle").textContent = "恭喜中獎";
-  document.getElementById("resultSub").textContent = `${prizeName}｜本次抽出 ${pendingWinners.length} 位`;
+  document.getElementById("resultSub").textContent =
+    `${prizeName}｜本次抽出 ${pendingWinners.length} 位`;
+
   document.getElementById("currentResult").textContent = text;
 
   const time = new Date().toLocaleString("zh-TW",{hour12:false});
   records.unshift(`${time}\n【${prizeName}】\n${text}`);
+
   renderRecords();
 
   if(prize){
     prize.drawn += pendingWinners.length;
+
     if(prize.drawn > prize.quota){
       prize.drawn = prize.quota;
     }
@@ -892,10 +1118,13 @@ function finishDraw(){
 
   if(noRepeat){
     const winnerSet = new Set(pendingWinners.map(x=>x.number));
+
     activeParticipants = activeParticipants.filter(x=>!winnerSet.has(x.number));
 
     participants.forEach(p=>{
-      if(winnerSet.has(p.number)) p.checked = false;
+      if(winnerSet.has(p.number)){
+        p.checked = false;
+      }
     });
 
     if(activeParticipants.length > 0){
@@ -914,20 +1143,28 @@ function finishDraw(){
 function weightedPick(pool){
   const totalWeight = pool.reduce((s,x)=>s+x.weight,0);
   let r = Math.random() * totalWeight;
+
   for(const p of pool){
     r -= p.weight;
-    if(r <= 0) return p;
+
+    if(r <= 0){
+      return p;
+    }
   }
+
   return pool[pool.length-1];
 }
 
 function renderRecords(){
   document.getElementById("records").textContent =
-    records.length ? records.map((r,i)=>`${i+1}. ${r}`).join("\n\n") : "尚無紀錄";
+    records.length
+      ? records.map((r,i)=>`${i+1}. ${r}`).join("\n\n")
+      : "尚無紀錄";
 }
 
 function clearRecords(){
   if(!confirm("確定清除抽獎紀錄？")) return;
+
   records = [];
   renderRecords();
 }
@@ -937,10 +1174,13 @@ function backToSetup(){
     alert("抽獎進行中，請等待完成。");
     return;
   }
+
   document.getElementById("wheelPage").classList.add("hidden");
   document.getElementById("setupPage").classList.remove("hidden");
+
   renderList();
   renderPrizes();
+
   window.scrollTo({top:0,behavior:"smooth"});
 }
 
