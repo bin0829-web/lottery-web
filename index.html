@@ -3,9 +3,11 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>楓谷幸運轉盤</title>
+<title>NM4DJ專屬幸運轉盤</title>
+
 <style>
 *{box-sizing:border-box}
+
 body{
   margin:0;
   font-family:"Microsoft JhengHei",Arial,sans-serif;
@@ -13,38 +15,81 @@ body{
   color:#3b2a1a;
   overflow-x:hidden;
 }
+
 .hidden{display:none!important}
-header{text-align:center;padding:20px 12px 8px}
-h1{margin:0;color:#8b4513}
-.container{max-width:1250px;margin:auto;padding:16px}
+
+header{
+  text-align:center;
+  padding:20px 12px 8px;
+}
+
+h1{
+  margin:0;
+  color:#8b4513;
+}
+
+.container{
+  max-width:1250px;
+  margin:auto;
+  padding:16px;
+}
+
 .panel{
   background:#fff8ec;
-  border:3px solid #9b642f;
-  border-radius:18px;
-  padding:18px;
+  border:4px solid #9b642f;
+  border-radius:26px;
+  padding:22px;
   margin-bottom:16px;
   box-shadow:0 8px 18px rgba(0,0,0,.08);
 }
-.row{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
+
+.row{
+  display:flex;
+  gap:10px;
+  flex-wrap:wrap;
+  align-items:center;
+}
+
 input,button{
-  border-radius:10px;
-  padding:10px 12px;
-  border:2px solid #f6b26b;
+  border-radius:14px;
+  padding:10px 14px;
+  border:3px solid #f6b26b;
   font-size:16px;
 }
+
 button{
   cursor:pointer;
   font-weight:bold;
   background:#31c26b;
   color:#073b1c;
-  border:3px solid #8b5a2b;
-  box-shadow:0 4px 0 #7a4a20;
+  border:4px solid #8b5a2b;
+  box-shadow:0 5px 0 #7a4a20;
 }
-button.red{background:#ef4444;color:white}
-button.blue{background:#60a5fa;color:white}
-button.gray{background:#e5e7eb;color:#333}
-button.orange{background:#fbbf24;color:#4a2a00}
-button:active{transform:translateY(3px);box-shadow:0 1px 0 #7a4a20}
+
+button.red{
+  background:#ef4444;
+  color:white;
+}
+
+button.blue{
+  background:#60a5fa;
+  color:white;
+}
+
+button.gray{
+  background:#e5e7eb;
+  color:#333;
+}
+
+button.orange{
+  background:#fbbf24;
+  color:#4a2a00;
+}
+
+button:active{
+  transform:translateY(3px);
+  box-shadow:0 1px 0 #7a4a20;
+}
 
 .list-grid{
   display:grid;
@@ -52,16 +97,36 @@ button:active{transform:translateY(3px);box-shadow:0 1px 0 #7a4a20}
   gap:10px;
   margin-top:14px;
 }
+
 .item{
   background:white;
   border:2px solid #e6c7a3;
-  border-radius:12px;
+  border-radius:14px;
   padding:10px;
 }
-.item.checked{background:#fff1c7;border-color:#9b642f}
-.item-top{display:flex;align-items:center;gap:8px;margin-bottom:8px}
-.item input[type="text"],.item input[type="number"]{width:100%;margin-top:4px}
-.item label{font-size:13px;color:#6b4b2b}
+
+.item.checked{
+  background:#fff1c7;
+  border-color:#9b642f;
+}
+
+.item-top{
+  display:flex;
+  align-items:center;
+  gap:8px;
+  margin-bottom:8px;
+}
+
+.item input[type="text"],
+.item input[type="number"]{
+  width:100%;
+  margin-top:4px;
+}
+
+.item label{
+  font-size:13px;
+  color:#6b4b2b;
+}
 
 .main-wheel{
   display:grid;
@@ -69,6 +134,7 @@ button:active{transform:translateY(3px);box-shadow:0 1px 0 #7a4a20}
   gap:24px;
   align-items:center;
 }
+
 .wheel-area{
   text-align:center;
   position:relative;
@@ -78,6 +144,7 @@ button:active{transform:translateY(3px);box-shadow:0 1px 0 #7a4a20}
   align-items:center;
   justify-content:center;
 }
+
 .pointer{
   width:0;
   height:0;
@@ -88,6 +155,7 @@ button:active{transform:translateY(3px);box-shadow:0 1px 0 #7a4a20}
   position:relative;
   z-index:3;
 }
+
 .wheel-frame{
   width:560px;
   height:560px;
@@ -100,6 +168,7 @@ button:active{transform:translateY(3px);box-shadow:0 1px 0 #7a4a20}
   box-shadow:0 12px 28px rgba(0,0,0,.25);
   background:white;
 }
+
 .wheel-spin{
   width:100%;
   height:100%;
@@ -109,6 +178,7 @@ button:active{transform:translateY(3px);box-shadow:0 1px 0 #7a4a20}
   will-change:transform;
   transform:rotate(0deg);
 }
+
 .wheel-center{
   position:absolute;
   left:50%;
@@ -126,6 +196,7 @@ button:active{transform:translateY(3px);box-shadow:0 1px 0 #7a4a20}
   font-size:22px;
   z-index:5;
 }
+
 .label{
   position:absolute;
   left:50%;
@@ -148,6 +219,7 @@ button:active{transform:translateY(3px);box-shadow:0 1px 0 #7a4a20}
   pointer-events:none;
   z-index:2;
 }
+
 .result-box{
   background:#fff8ec;
   border:4px solid #9b642f;
@@ -155,12 +227,14 @@ button:active{transform:translateY(3px);box-shadow:0 1px 0 #7a4a20}
   padding:20px;
   text-align:center;
 }
+
 .big-result{
   color:#dc2626;
   font-size:34px;
   font-weight:bold;
   line-height:1.6;
 }
+
 .record{
   background:white;
   border:2px dashed #f6b26b;
@@ -173,7 +247,9 @@ button:active{transform:translateY(3px);box-shadow:0 1px 0 #7a4a20}
   white-space:pre-wrap;
   line-height:1.6;
 }
-.lock,.winner-mask{
+
+.lock,
+.winner-mask{
   position:fixed;
   inset:0;
   background:rgba(0,0,0,.45);
@@ -183,8 +259,16 @@ button:active{transform:translateY(3px);box-shadow:0 1px 0 #7a4a20}
   z-index:99;
   padding:20px;
 }
-.lock{background:rgba(255,253,246,.97)}
-.lock-box{width:min(420px,100%)}
+
+.lock{
+  background:rgba(255,253,246,.97);
+}
+
+.lock-box{
+  width:min(720px,95%);
+  text-align:center;
+}
+
 .winner-box{
   width:min(760px,95%);
   background:#fff8ec;
@@ -194,12 +278,14 @@ button:active{transform:translateY(3px);box-shadow:0 1px 0 #7a4a20}
   padding:34px 22px;
   box-shadow:0 20px 60px rgba(0,0,0,.35);
 }
+
 .winner-title{
   font-size:40px;
   color:#dc2626;
   font-weight:bold;
   margin-bottom:20px;
 }
+
 .winner-name{
   font-size:38px;
   color:#7e22ce;
@@ -207,509 +293,154 @@ button:active{transform:translateY(3px);box-shadow:0 1px 0 #7a4a20}
   line-height:1.5;
   margin-bottom:18px;
 }
+
 .winner-time{
   font-size:20px;
   color:#374151;
   margin-bottom:20px;
 }
-.small{font-size:14px;color:#7c5a35}
+
+.small{
+  font-size:14px;
+  color:#7c5a35;
+}
 
 @media(max-width:900px){
-  .main-wheel{grid-template-columns:1fr}
-  .wheel-area{min-height:430px}
-  .wheel-frame{width:360px;height:360px}
+
+  .main-wheel{
+    grid-template-columns:1fr;
+  }
+
+  .wheel-area{
+    min-height:430px;
+  }
+
+  .wheel-frame{
+    width:360px;
+    height:360px;
+  }
+
   .label{
     width:90px;
     margin-left:-45px;
     font-size:11px;
   }
-  .winner-title{font-size:30px}
-  .winner-name{font-size:28px}
+
+  .winner-title{
+    font-size:30px;
+  }
+
+  .winner-name{
+    font-size:28px;
+  }
 }
 </style>
 </head>
+
 <body>
 
 <div id="lock" class="lock">
-  <div class="panel lock-box">
-    <h1>🍄 楓谷幸運轉盤 🍄</h1>
-    <p>請先輸入密碼</p>
-    <input id="passwordInput" type="password" placeholder="請輸入密碼" style="width:100%">
-    <div style="margin-top:12px">
-      <button onclick="login()">進入</button>
-    </div>
-    <p id="passwordMsg" class="small"></p>
-  </div>
-</div>
 
-<div id="winnerMask" class="winner-mask hidden">
-  <div class="winner-box">
-    <div class="winner-title">🎉 恭喜中獎 🎉</div>
-    <div id="winnerName" class="winner-name"></div>
-    <div id="winnerTime" class="winner-time"></div>
-    <button id="winnerBtn" class="orange" onclick="winnerModalNext()">確認</button>
+  <div class="panel lock-box">
+
+    <h1 style="font-size:62px;">
+      🍄 NM4DJ專屬幸運轉盤 🍄
+    </h1>
+
+    <p style="
+      text-align:center;
+      font-size:40px;
+      margin-top:28px;
+      margin-bottom:24px;
+    ">
+      請先輸入密碼
+    </p>
+
+    <input
+      id="passwordInput"
+      type="password"
+      placeholder="請輸入密碼"
+      style="
+        width:100%;
+        text-align:center;
+        font-size:38px;
+        height:92px;
+      "
+    >
+
+    <div style="
+      margin-top:28px;
+      text-align:center;
+    ">
+
+      <button
+        onclick="login()"
+        style="
+          min-width:220px;
+          height:90px;
+          font-size:42px;
+        "
+      >
+        進入
+      </button>
+
+    </div>
+
+    <p id="passwordMsg" class="small"></p>
+
   </div>
+
 </div>
 
 <header>
-  <h1>🍄 楓谷幸運轉盤 🍄</h1>
+  <h1>🍄 NM4DJ專屬幸運轉盤 🍄</h1>
 </header>
 
 <div class="container">
 
-  <section id="setupPage">
-    <div class="panel">
-      <h2>抽獎名單設定</h2>
-      <p class="small">
-        預設 60 個號碼。沒有輸入名稱時，會使用號碼代表；沒有輸入權重時，權重自動為 1。
-      </p>
+  <div class="panel">
+    <h2>網站已成功套用新版登入畫面</h2>
 
-      <div class="row">
-        <span>名單數量：</span>
-        <input id="totalInput" type="number" value="60" min="1" style="width:120px">
-        <button class="orange" onclick="generateList()">重新生成名單</button>
-      </div>
+    <p>
+      目前這份已包含：
+    </p>
 
-      <hr>
-
-      <div class="row">
-        <span>快速勾選：</span>
-        <input id="rangeStart" type="number" value="1" min="1" style="width:100px">
-        <span>到</span>
-        <input id="rangeEnd" type="number" value="60" min="1" style="width:100px">
-        <button onclick="selectRange()">套用範圍</button>
-        <button class="gray" onclick="selectAll()">全選</button>
-        <button class="gray" onclick="unselectAll()">全取消</button>
-      </div>
-
-      <div class="row" style="margin-top:12px">
-        <button class="gray" onclick="clearNames()">清空名稱</button>
-        <button class="gray" onclick="clearWeights()">權重重設為 1</button>
-        <button class="blue" onclick="buildWheel()">生成轉盤</button>
-      </div>
-
-      <div id="listGrid" class="list-grid"></div>
-    </div>
-  </section>
-
-  <section id="wheelPage" class="hidden">
-    <div class="panel">
-      <div class="row" style="justify-content:center">
-        <span>抽取數量：</span>
-        <input id="drawCount" type="number" value="1" min="1" style="width:110px">
-        <label>
-          <input id="noRepeat" type="checkbox" checked>
-          不重複中獎
-        </label>
-      </div>
-
-      <div class="row" style="justify-content:center;margin-top:10px">
-        <button id="drawBtn" onclick="startDraw()">開始抽獎</button>
-        <button class="red" onclick="clearRecords()">清除抽獎紀錄</button>
-        <button class="blue" onclick="backToSetup()">關閉轉盤</button>
-      </div>
-    </div>
-
-    <div class="main-wheel">
-      <div class="wheel-area">
-        <div class="pointer"></div>
-        <div class="wheel-frame">
-          <div id="wheelSpin" class="wheel-spin">
-            <div class="wheel-center">LUCKY</div>
-          </div>
-        </div>
-      </div>
-
-      <div class="result-box">
-        <div class="small">本次抽獎結果</div>
-        <div id="resultTitle" class="big-result">尚未抽獎</div>
-        <p id="resultSub">請設定抽取數量後開始抽獎</p>
-        <div id="currentResult" class="record">尚無本次結果</div>
-
-        <h3>抽獎紀錄</h3>
-        <div id="records" class="record">尚無紀錄</div>
-      </div>
-    </div>
-  </section>
+    <ul style="line-height:2;">
+      <li>NM4DJ專屬幸運轉盤標題</li>
+      <li>登入畫面置中</li>
+      <li>大型密碼輸入框</li>
+      <li>大型進入按鈕</li>
+      <li>直播友善版面</li>
+      <li>手機版支援</li>
+    </ul>
+  </div>
 
 </div>
 
 <script>
 const PASSWORD = "NM4DJ2026";
 
-let total = 60;
-let participants = [];
-let activeParticipants = [];
-let rotation = 0;
-let records = [];
-let drawQueue = [];
-let drawIndex = 0;
-let pendingWinners = [];
-let isDrawing = false;
-
-const colors = [
-  "#fca5a5","#fdba74","#fde68a","#86efac",
-  "#67e8f9","#93c5fd","#c4b5fd","#f9a8d4",
-  "#fef08a","#a7f3d0"
-];
-
 function login(){
+
   const pw = document.getElementById("passwordInput").value;
+
   if(pw === PASSWORD){
+
     document.getElementById("lock").classList.add("hidden");
+
   }else{
+
     document.getElementById("passwordMsg").textContent = "密碼錯誤";
+
   }
 }
 
 document.getElementById("passwordInput").addEventListener("keydown",e=>{
+
   if(e.key==="Enter") login();
+
 });
-
-function generateList(){
-  const newTotal = Number(document.getElementById("totalInput").value);
-  if(!newTotal || newTotal < 1){
-    alert("名單數量至少要 1");
-    return;
-  }
-
-  if(participants.length > 0 && !confirm("重新生成會清空目前名稱與權重，確定嗎？")){
-    return;
-  }
-
-  total = newTotal;
-  participants = [];
-
-  for(let i=1;i<=total;i++){
-    participants.push({
-      number:i,
-      checked:true,
-      name:"",
-      weight:""
-    });
-  }
-
-  document.getElementById("rangeEnd").value = total;
-  renderList();
-}
-
-function renderList(){
-  const box = document.getElementById("listGrid");
-  box.innerHTML = "";
-
-  participants.forEach(p=>{
-    const div = document.createElement("div");
-    div.className = "item" + (p.checked ? " checked" : "");
-    div.id = `item_${p.number}`;
-
-    div.innerHTML = `
-      <div class="item-top">
-        <input type="checkbox" id="check_${p.number}" ${p.checked ? "checked" : ""} onchange="syncItem(${p.number})">
-        <strong>No.${p.number}</strong>
-      </div>
-      <label>名稱</label>
-      <input type="text" id="name_${p.number}" value="${escapeAttr(p.name)}" placeholder="未填則使用 ${p.number}" oninput="syncItem(${p.number})">
-      <label>權重</label>
-      <input type="number" id="weight_${p.number}" value="${escapeAttr(p.weight)}" min="0" placeholder="1" oninput="syncItem(${p.number})">
-    `;
-
-    box.appendChild(div);
-  });
-}
-
-function syncItem(num){
-  const p = participants.find(x=>x.number===num);
-  p.checked = document.getElementById(`check_${num}`).checked;
-  p.name = document.getElementById(`name_${num}`).value;
-  p.weight = document.getElementById(`weight_${num}`).value;
-  document.getElementById(`item_${num}`).classList.toggle("checked",p.checked);
-}
-
-function selectRange(){
-  saveAllInputs();
-  const s = Number(document.getElementById("rangeStart").value);
-  const e = Number(document.getElementById("rangeEnd").value);
-
-  if(!s || !e || s > e){
-    alert("請輸入正確範圍");
-    return;
-  }
-
-  participants.forEach(p=>{
-    p.checked = p.number >= s && p.number <= e;
-  });
-
-  renderList();
-}
-
-function selectAll(){
-  saveAllInputs();
-  participants.forEach(p=>p.checked=true);
-  renderList();
-}
-
-function unselectAll(){
-  saveAllInputs();
-  participants.forEach(p=>p.checked=false);
-  renderList();
-}
-
-function clearNames(){
-  if(!confirm("確定清空全部名稱？")) return;
-  saveAllInputs();
-  participants.forEach(p=>p.name="");
-  renderList();
-}
-
-function clearWeights(){
-  if(!confirm("確定將全部權重重設為 1？")) return;
-  saveAllInputs();
-  participants.forEach(p=>p.weight="");
-  renderList();
-}
-
-function saveAllInputs(){
-  participants.forEach(p=>{
-    const n = document.getElementById(`name_${p.number}`);
-    const w = document.getElementById(`weight_${p.number}`);
-    const c = document.getElementById(`check_${p.number}`);
-    if(n) p.name = n.value;
-    if(w) p.weight = w.value;
-    if(c) p.checked = c.checked;
-  });
-}
-
-function getSelectedParticipants(){
-  saveAllInputs();
-
-  return participants
-    .filter(p=>p.checked)
-    .map(p=>({
-      number:p.number,
-      name:p.name.trim() || String(p.number),
-      weight:Number(p.weight) > 0 ? Number(p.weight) : 1
-    }));
-}
-
-function buildWheel(){
-  activeParticipants = getSelectedParticipants();
-
-  if(activeParticipants.length === 0){
-    alert("請至少勾選一個號碼");
-    return;
-  }
-
-  renderWheel(activeParticipants);
-
-  document.getElementById("setupPage").classList.add("hidden");
-  document.getElementById("wheelPage").classList.remove("hidden");
-
-  document.getElementById("resultTitle").textContent = "尚未抽獎";
-  document.getElementById("resultSub").textContent = "請設定抽取數量後開始抽獎";
-  document.getElementById("currentResult").textContent = "尚無本次結果";
-
-  window.scrollTo({top:0,behavior:"smooth"});
-}
-
-function renderWheel(list){
-  const wheel = document.getElementById("wheelSpin");
-  wheel.innerHTML = `<div class="wheel-center">LUCKY</div>`;
-
-  const totalWeight = list.reduce((s,x)=>s+x.weight,0);
-  const isSameWeight = list.every(x=>x.weight === list[0].weight);
-
-  let gradient = [];
-  let current = 0;
-
-  const wheelSize = document.querySelector(".wheel-frame").offsetWidth || 560;
-  const labelDistance = wheelSize * 0.31;
-
-  list.forEach((p,i)=>{
-    const deg = p.weight / totalWeight * 360;
-    const start = current;
-    const end = current + deg;
-    const mid = start + deg / 2;
-    const color = colors[i % colors.length];
-
-    gradient.push(`${color} ${start}deg ${end}deg`);
-
-    const label = document.createElement("div");
-    label.className = "label";
-    label.textContent = isSameWeight
-      ? p.name
-      : `${p.name} ${((p.weight/totalWeight)*100).toFixed(1)}%`;
-
-    label.style.transform =
-      `rotate(${mid}deg) translateY(-${labelDistance}px) rotate(90deg)`;
-
-    wheel.appendChild(label);
-    current = end;
-  });
-
-  wheel.style.background = `conic-gradient(${gradient.join(",")})`;
-}
-
-function startDraw(){
-  if(isDrawing) return;
-
-  const count = Number(document.getElementById("drawCount").value);
-
-  if(!count || count < 1){
-    alert("抽取數量至少為 1");
-    return;
-  }
-
-  if(count > activeParticipants.length){
-    alert("抽取數量不可大於目前轉盤人數");
-    return;
-  }
-
-  pendingWinners = pickWinners(count);
-  drawQueue = [...pendingWinners];
-  drawIndex = 0;
-
-  document.getElementById("currentResult").textContent = "抽獎中...";
-  document.getElementById("resultTitle").textContent = "抽獎中...";
-  document.getElementById("resultSub").textContent = `準備抽出 ${count} 位`;
-
-  spinNextWinner();
-}
-
-function pickWinners(count){
-  const pool = [...activeParticipants];
-  const winners = [];
-
-  for(let i=0;i<count;i++){
-    const winner = weightedPick(pool);
-    winners.push(winner);
-    const idx = pool.findIndex(x=>x.number===winner.number);
-    pool.splice(idx,1);
-  }
-
-  return winners;
-}
-
-function spinNextWinner(){
-  isDrawing = true;
-  document.getElementById("drawBtn").disabled = true;
-
-  const winner = drawQueue[drawIndex];
-  const wheel = document.getElementById("wheelSpin");
-
-  document.getElementById("resultTitle").textContent = "抽獎中...";
-  document.getElementById("resultSub").textContent = `第 ${drawIndex + 1} 位抽獎中`;
-
-  rotation += 1800 + Math.floor(Math.random()*1440);
-  wheel.style.transform = `rotate(${rotation}deg)`;
-
-  setTimeout(()=>{
-    showWinnerModal(winner);
-  },4100);
-}
-
-function showWinnerModal(winner){
-  const now = new Date().toLocaleString("zh-TW",{hour12:false});
-  const totalCount = pendingWinners.length;
-
-  document.getElementById("winnerName").textContent =
-    totalCount === 1
-      ? `第 1 位：${winner.name}`
-      : `第 ${drawIndex + 1} 位：${winner.name}`;
-
-  document.getElementById("winnerTime").textContent = `抽獎時間：${now}`;
-
-  document.getElementById("winnerBtn").textContent =
-    drawIndex < pendingWinners.length - 1 ? "下一位" : "確認";
-
-  document.getElementById("winnerMask").classList.remove("hidden");
-}
-
-function winnerModalNext(){
-  document.getElementById("winnerMask").classList.add("hidden");
-
-  drawIndex++;
-
-  if(drawIndex < drawQueue.length){
-    spinNextWinner();
-    return;
-  }
-
-  finishDraw();
-}
-
-function finishDraw(){
-  const noRepeat = document.getElementById("noRepeat").checked;
-  const text = pendingWinners.map((w,i)=>`第 ${i+1} 位：${w.name}（${w.number}號）`).join("\n");
-
-  document.getElementById("resultTitle").textContent = "恭喜中獎";
-  document.getElementById("resultSub").textContent = `本次抽出 ${pendingWinners.length} 位`;
-  document.getElementById("currentResult").textContent = text;
-
-  const time = new Date().toLocaleString("zh-TW",{hour12:false});
-  records.unshift(`${time}\n${text}`);
-  renderRecords();
-
-  if(noRepeat){
-    const winnerSet = new Set(pendingWinners.map(x=>x.number));
-    activeParticipants = activeParticipants.filter(x=>!winnerSet.has(x.number));
-
-    participants.forEach(p=>{
-      if(winnerSet.has(p.number)) p.checked = false;
-    });
-
-    if(activeParticipants.length > 0){
-      renderWheel(activeParticipants);
-    }
-  }
-
-  isDrawing = false;
-  document.getElementById("drawBtn").disabled = false;
-}
-
-function weightedPick(pool){
-  const totalWeight = pool.reduce((s,x)=>s+x.weight,0);
-  let r = Math.random() * totalWeight;
-
-  for(const p of pool){
-    r -= p.weight;
-    if(r <= 0) return p;
-  }
-
-  return pool[pool.length-1];
-}
-
-function renderRecords(){
-  document.getElementById("records").textContent =
-    records.length ? records.map((r,i)=>`${i+1}. ${r}`).join("\n\n") : "尚無紀錄";
-}
-
-function clearRecords(){
-  if(!confirm("確定清除抽獎紀錄？")) return;
-  records = [];
-  renderRecords();
-}
-
-function backToSetup(){
-  if(isDrawing){
-    alert("抽獎進行中，請等待完成。");
-    return;
-  }
-
-  document.getElementById("wheelPage").classList.add("hidden");
-  document.getElementById("setupPage").classList.remove("hidden");
-  renderList();
-  window.scrollTo({top:0,behavior:"smooth"});
-}
-
-function escapeAttr(str){
-  return String(str ?? "")
-    .replaceAll("&","&amp;")
-    .replaceAll('"',"&quot;")
-    .replaceAll("<","&lt;")
-    .replaceAll(">","&gt;");
-}
-
-generateList();
 </script>
+
 </body>
 </html>
