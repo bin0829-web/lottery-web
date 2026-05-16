@@ -348,7 +348,7 @@ button:active{transform:translateY(3px);box-shadow:0 1px 0 #7a4a20}
 </div>
 
 <script>
-const PASSWORD = "NM4DJ2026";
+const PASSWORD = "nm4dj2026";
 
 let total = 60;
 let participants = [];
@@ -493,18 +493,26 @@ function getSelectedParticipants(){
 
 function buildWheel(){
   activeParticipants = getSelectedParticipants();
+
   if(activeParticipants.length === 0){
     alert("請至少勾選一個號碼");
     return;
   }
 
-  renderWheel(activeParticipants);
   document.getElementById("setupPage").classList.add("hidden");
   document.getElementById("wheelPage").classList.remove("hidden");
+
   document.getElementById("resultTitle").textContent = "尚未抽獎";
   document.getElementById("resultSub").textContent = "請設定抽取數量後開始抽獎";
   document.getElementById("currentResult").textContent = "尚無本次結果";
+
   window.scrollTo({top:0,behavior:"smooth"});
+
+  requestAnimationFrame(()=>{
+    setTimeout(()=>{
+      renderWheel(activeParticipants);
+    },80);
+  });
 }
 
 function renderWheel(list){
@@ -515,7 +523,9 @@ function renderWheel(list){
   const isSameWeight = list.every(x=>x.weight === list[0].weight);
   let gradient = [];
   let current = 0;
-  const wheelSize = document.querySelector(".wheel-frame").offsetWidth || 560;
+
+  const frame = document.querySelector(".wheel-frame");
+  const wheelSize = frame.getBoundingClientRect().width || 560;
   const labelDistance = wheelSize * 0.31;
 
   list.forEach((p,i)=>{
