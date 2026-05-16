@@ -88,21 +88,26 @@ button:active{transform:translateY(3px);box-shadow:0 1px 0 #7a4a20}
   position:relative;
   z-index:3;
 }
-.wheel{
+.wheel-frame{
   width:560px;
   height:560px;
   max-width:90vw;
   max-height:90vw;
   border-radius:50%;
   border:12px solid #9b642f;
-  margin:auto;
-  position:relative;
   overflow:hidden;
-  transition:transform 4s cubic-bezier(.12,.72,.14,1);
+  position:relative;
   box-shadow:0 12px 28px rgba(0,0,0,.25);
+  background:white;
+}
+.wheel-spin{
+  width:100%;
+  height:100%;
+  border-radius:50%;
+  position:relative;
+  transition:transform 4s cubic-bezier(.12,.72,.14,1);
   will-change:transform;
-  transform:translateZ(0);
-  contain:layout paint;
+  transform:rotate(0deg);
 }
 .wheel-center{
   position:absolute;
@@ -119,7 +124,7 @@ button:active{transform:translateY(3px);box-shadow:0 1px 0 #7a4a20}
   justify-content:center;
   font-weight:bold;
   font-size:22px;
-  z-index:2;
+  z-index:5;
 }
 .label{
   position:absolute;
@@ -141,7 +146,7 @@ button:active{transform:translateY(3px);box-shadow:0 1px 0 #7a4a20}
   text-overflow:ellipsis;
   transform-origin:center center;
   pointer-events:none;
-  z-index:1;
+  z-index:2;
 }
 .result-box{
   background:#fff8ec;
@@ -168,28 +173,58 @@ button:active{transform:translateY(3px);box-shadow:0 1px 0 #7a4a20}
   white-space:pre-wrap;
   line-height:1.6;
 }
-.lock{
+.lock,.winner-mask{
   position:fixed;
   inset:0;
-  background:rgba(255,253,246,.97);
+  background:rgba(0,0,0,.45);
   display:flex;
   justify-content:center;
   align-items:center;
   z-index:99;
   padding:20px;
 }
+.lock{background:rgba(255,253,246,.97)}
 .lock-box{width:min(420px,100%)}
+.winner-box{
+  width:min(760px,95%);
+  background:#fff8ec;
+  border:6px solid #9b642f;
+  border-radius:26px;
+  text-align:center;
+  padding:34px 22px;
+  box-shadow:0 20px 60px rgba(0,0,0,.35);
+}
+.winner-title{
+  font-size:40px;
+  color:#dc2626;
+  font-weight:bold;
+  margin-bottom:20px;
+}
+.winner-name{
+  font-size:38px;
+  color:#7e22ce;
+  font-weight:bold;
+  line-height:1.5;
+  margin-bottom:18px;
+}
+.winner-time{
+  font-size:20px;
+  color:#374151;
+  margin-bottom:20px;
+}
 .small{font-size:14px;color:#7c5a35}
 
 @media(max-width:900px){
   .main-wheel{grid-template-columns:1fr}
   .wheel-area{min-height:430px}
-  .wheel{width:360px;height:360px}
+  .wheel-frame{width:360px;height:360px}
   .label{
     width:90px;
     margin-left:-45px;
     font-size:11px;
   }
+  .winner-title{font-size:30px}
+  .winner-name{font-size:28px}
 }
 </style>
 </head>
@@ -204,6 +239,15 @@ button:active{transform:translateY(3px);box-shadow:0 1px 0 #7a4a20}
       <button onclick="login()">進入</button>
     </div>
     <p id="passwordMsg" class="small"></p>
+  </div>
+</div>
+
+<div id="winnerMask" class="winner-mask hidden">
+  <div class="winner-box">
+    <div class="winner-title">🎉 恭喜中獎 🎉</div>
+    <div id="winnerName" class="winner-name"></div>
+    <div id="winnerTime" class="winner-time"></div>
+    <button id="winnerBtn" class="orange" onclick="winnerModalNext()">確認</button>
   </div>
 </div>
 
@@ -260,7 +304,7 @@ button:active{transform:translateY(3px);box-shadow:0 1px 0 #7a4a20}
       </div>
 
       <div class="row" style="justify-content:center;margin-top:10px">
-        <button onclick="draw()">開始抽獎</button>
+        <button id="drawBtn" onclick="startDraw()">開始抽獎</button>
         <button class="red" onclick="clearRecords()">清除抽獎紀錄</button>
         <button class="blue" onclick="backToSetup()">關閉轉盤</button>
       </div>
@@ -269,8 +313,10 @@ button:active{transform:translateY(3px);box-shadow:0 1px 0 #7a4a20}
     <div class="main-wheel">
       <div class="wheel-area">
         <div class="pointer"></div>
-        <div id="wheel" class="wheel">
-          <div class="wheel-center">LUCKY</div>
+        <div class="wheel-frame">
+          <div id="wheelSpin" class="wheel-spin">
+            <div class="wheel-center">LUCKY</div>
+          </div>
         </div>
       </div>
 
@@ -296,6 +342,10 @@ let participants = [];
 let activeParticipants = [];
 let rotation = 0;
 let records = [];
+let drawQueue = [];
+let drawIndex = 0;
+let pendingWinners = [];
+let isDrawing = false;
 
 const colors = [
   "#fca5a5","#fdba74","#fde68a","#86efac",
@@ -377,7 +427,6 @@ function syncItem(num){
 
 function selectRange(){
   saveAllInputs();
-
   const s = Number(document.getElementById("rangeStart").value);
   const e = Number(document.getElementById("rangeEnd").value);
 
@@ -450,7 +499,7 @@ function buildWheel(){
     return;
   }
 
-  drawWheel(activeParticipants);
+  renderWheel(activeParticipants);
 
   document.getElementById("setupPage").classList.add("hidden");
   document.getElementById("wheelPage").classList.remove("hidden");
@@ -462,8 +511,8 @@ function buildWheel(){
   window.scrollTo({top:0,behavior:"smooth"});
 }
 
-function drawWheel(list){
-  const wheel = document.getElementById("wheel");
+function renderWheel(list){
+  const wheel = document.getElementById("wheelSpin");
   wheel.innerHTML = `<div class="wheel-center">LUCKY</div>`;
 
   const totalWeight = list.reduce((s,x)=>s+x.weight,0);
@@ -472,7 +521,7 @@ function drawWheel(list){
   let gradient = [];
   let current = 0;
 
-  const wheelSize = wheel.offsetWidth || 560;
+  const wheelSize = document.querySelector(".wheel-frame").offsetWidth || 560;
   const labelDistance = wheelSize * 0.31;
 
   list.forEach((p,i)=>{
@@ -486,12 +535,9 @@ function drawWheel(list){
 
     const label = document.createElement("div");
     label.className = "label";
-
-    if(isSameWeight){
-      label.textContent = p.name;
-    }else{
-      label.textContent = `${p.name} ${((p.weight/totalWeight)*100).toFixed(1)}%`;
-    }
+    label.textContent = isSameWeight
+      ? p.name
+      : `${p.name} ${((p.weight/totalWeight)*100).toFixed(1)}%`;
 
     label.style.transform =
       `rotate(${mid}deg) translateY(-${labelDistance}px) rotate(90deg)`;
@@ -503,9 +549,10 @@ function drawWheel(list){
   wheel.style.background = `conic-gradient(${gradient.join(",")})`;
 }
 
-function draw(){
-  let count = Number(document.getElementById("drawCount").value);
-  const noRepeat = document.getElementById("noRepeat").checked;
+function startDraw(){
+  if(isDrawing) return;
+
+  const count = Number(document.getElementById("drawCount").value);
 
   if(!count || count < 1){
     alert("抽取數量至少為 1");
@@ -517,39 +564,106 @@ function draw(){
     return;
   }
 
+  pendingWinners = pickWinners(count);
+  drawQueue = [...pendingWinners];
+  drawIndex = 0;
+
+  document.getElementById("currentResult").textContent = "抽獎中...";
+  document.getElementById("resultTitle").textContent = "抽獎中...";
+  document.getElementById("resultSub").textContent = `準備抽出 ${count} 位`;
+
+  spinNextWinner();
+}
+
+function pickWinners(count){
   const pool = [...activeParticipants];
   const winners = [];
 
   for(let i=0;i<count;i++){
     const winner = weightedPick(pool);
     winners.push(winner);
-
     const idx = pool.findIndex(x=>x.number===winner.number);
     pool.splice(idx,1);
   }
 
-  const wheel = document.getElementById("wheel");
+  return winners;
+}
+
+function spinNextWinner(){
+  isDrawing = true;
+  document.getElementById("drawBtn").disabled = true;
+
+  const winner = drawQueue[drawIndex];
+  const wheel = document.getElementById("wheelSpin");
+
   document.getElementById("resultTitle").textContent = "抽獎中...";
-  document.getElementById("resultSub").textContent = "轉盤轉動中";
+  document.getElementById("resultSub").textContent = `第 ${drawIndex + 1} 位抽獎中`;
 
   rotation += 1800 + Math.floor(Math.random()*1440);
-  wheel.style.transform = `translateZ(0) rotate(${rotation}deg)`;
+  wheel.style.transform = `rotate(${rotation}deg)`;
 
   setTimeout(()=>{
-    showWinners(winners);
-
-    if(noRepeat){
-      const winnerSet = new Set(winners.map(x=>x.number));
-      activeParticipants = activeParticipants.filter(x=>!winnerSet.has(x.number));
-      participants.forEach(p=>{
-        if(winnerSet.has(p.number)) p.checked = false;
-      });
-
-      if(activeParticipants.length > 0){
-        drawWheel(activeParticipants);
-      }
-    }
+    showWinnerModal(winner);
   },4100);
+}
+
+function showWinnerModal(winner){
+  const now = new Date().toLocaleString("zh-TW",{hour12:false});
+  const totalCount = pendingWinners.length;
+
+  document.getElementById("winnerName").textContent =
+    totalCount === 1
+      ? `第 1 位：${winner.name}`
+      : `第 ${drawIndex + 1} 位：${winner.name}`;
+
+  document.getElementById("winnerTime").textContent = `抽獎時間：${now}`;
+
+  document.getElementById("winnerBtn").textContent =
+    drawIndex < pendingWinners.length - 1 ? "下一位" : "確認";
+
+  document.getElementById("winnerMask").classList.remove("hidden");
+}
+
+function winnerModalNext(){
+  document.getElementById("winnerMask").classList.add("hidden");
+
+  drawIndex++;
+
+  if(drawIndex < drawQueue.length){
+    spinNextWinner();
+    return;
+  }
+
+  finishDraw();
+}
+
+function finishDraw(){
+  const noRepeat = document.getElementById("noRepeat").checked;
+  const text = pendingWinners.map((w,i)=>`第 ${i+1} 位：${w.name}（${w.number}號）`).join("\n");
+
+  document.getElementById("resultTitle").textContent = "恭喜中獎";
+  document.getElementById("resultSub").textContent = `本次抽出 ${pendingWinners.length} 位`;
+  document.getElementById("currentResult").textContent = text;
+
+  const time = new Date().toLocaleString("zh-TW",{hour12:false});
+  records.unshift(`${time}\n${text}`);
+  renderRecords();
+
+  if(noRepeat){
+    const winnerSet = new Set(pendingWinners.map(x=>x.number));
+    activeParticipants = activeParticipants.filter(x=>!winnerSet.has(x.number));
+
+    participants.forEach(p=>{
+      if(winnerSet.has(p.number)) p.checked = false;
+    });
+
+    if(activeParticipants.length > 0){
+      renderWheel(activeParticipants);
+    }
+  }
+
+  isDrawing = false;
+  document.getElementById("drawBtn").disabled = false;
 }
 
 function weightedPick(pool){
@@ -564,19 +678,6 @@ function weightedPick(pool){
   return pool[pool.length-1];
 }
 
-function showWinners(winners){
-  const text = winners.map(w=>`${w.name}（${w.number}號）`).join("\n");
-
-  document.getElementById("resultTitle").textContent = "恭喜中獎";
-  document.getElementById("resultSub").textContent = `本次抽出 ${winners.length} 位`;
-  document.getElementById("currentResult").textContent = text;
-
-  const time = new Date().toLocaleString("zh-TW",{hour12:false});
-  records.unshift(`${time}\n${text}`);
-
-  renderRecords();
-}
-
 function renderRecords(){
   document.getElementById("records").textContent =
     records.length ? records.map((r,i)=>`${i+1}. ${r}`).join("\n\n") : "尚無紀錄";
@@ -589,6 +690,11 @@ function clearRecords(){
 }
 
 function backToSetup(){
+  if(isDrawing){
+    alert("抽獎進行中，請等待完成。");
+    return;
+  }
+
   document.getElementById("wheelPage").classList.add("hidden");
   document.getElementById("setupPage").classList.remove("hidden");
   renderList();
