@@ -78,7 +78,8 @@
       </div>
       <div id="prizeSummary" style="text-align:center;margin-top:10px"></div>
       <div class="row" style="justify-content:center;margin-top:10px">
-        <button id="drawBtn" onclick="startDraw()">開始扭蛋</button>
+        <button class="orange" id="mixBtn" onclick="mixBalls()">🌀 攪動球</button>
+        <button id="drawBtn" onclick="startDraw()">🥚 開始扭蛋</button>
         <button class="red" onclick="clearRecords()">清除抽獎紀錄</button>
         <button class="blue" onclick="backToSetup()">關閉扭蛋機</button>
       </div>
@@ -94,6 +95,7 @@
             <div class="gacha-slot"></div>
           </div>
           <div id="gachaDrop" class="gacha-drop"></div>
+          <div id="gachaFlash" class="gacha-flash"></div>
         </div>
       </div>
       <div class="result-box">
@@ -112,105 +114,417 @@
 <script>
 requireAuth();
 
-const state={total:60,participants:[],active:[],records:[],prizes:defaultPrizes(),drawTotal:0,drawIndex:0,winners:[],prizeId:null,isDrawing:false,audio:null};
+const state={
+  total:60,
+  participants:[],
+  active:[],
+  records:[],
+  prizes:defaultPrizes(),
+  drawTotal:0,
+  drawIndex:0,
+  winners:[],
+  prizeId:null,
+  isDrawing:false,
+  isMixing:false,
+  mixTimeout:null,
+  audio:null
+};
 
 function renderPrizes(){
-  const body=document.getElementById("prizeBody"); body.innerHTML="";
+  const body=document.getElementById("prizeBody");
+  body.innerHTML="";
   state.prizes.forEach(p=>{
     const tr=document.createElement("tr");
-    tr.innerHTML=`<td><input value="${escapeAttr(p.name)}" oninput="updatePrizeName('${p.id}',this.value)"></td>
-    <td><input type="number" min="1" value="${p.quota}" oninput="updatePrizeQuota('${p.id}',this.value)"></td>
-    <td>${p.drawn} / ${p.quota}</td><td><button class="red" onclick="deletePrize('${p.id}')">刪除</button></td>`;
+    tr.innerHTML=`
+      <td><input value="${escapeAttr(p.name)}" oninput="updatePrizeName('${p.id}',this.value)"></td>
+      <td><input type="number" min="1" value="${p.quota}" oninput="updatePrizeQuota('${p.id}',this.value)"></td>
+      <td>${p.drawn} / ${p.quota}</td>
+      <td><button class="red" onclick="deletePrize('${p.id}')">刪除</button></td>
+    `;
     body.appendChild(tr);
   });
 }
-function updatePrizeName(id,v){const p=state.prizes.find(x=>x.id===id);if(p)p.name=v.trim()||"未命名獎項"}
-function updatePrizeQuota(id,v){const p=state.prizes.find(x=>x.id===id);if(!p)return;p.quota=Number(v)>0?Number(v):1;if(p.drawn>p.quota)p.drawn=p.quota;renderPrizes()}
-function addPrize(){state.prizes.push({id:makeId(),name:`獎項 ${state.prizes.length+1}`,quota:1,drawn:0});renderPrizes()}
-function deletePrize(id){if(state.prizes.length<=1)return alert("至少需要保留一個獎項。");if(confirm("確定刪除此獎項？")){state.prizes=state.prizes.filter(p=>p.id!==id);renderPrizes()}}
-function resetPrizes(){if(confirm("確定恢復預設獎項？")){state.prizes=defaultPrizes();renderPrizes()}}
-function clearPrizeRecords(){if(confirm("確定清空所有獎項已抽數量？")){state.prizes.forEach(p=>p.drawn=0);renderPrizes();renderPrizeSelect();updatePrizeSummary()}}
+
+function updatePrizeName(id,v){
+  const p=state.prizes.find(x=>x.id===id);
+  if(p)p.name=v.trim()||"未命名獎項";
+}
+
+function updatePrizeQuota(id,v){
+  const p=state.prizes.find(x=>x.id===id);
+  if(!p)return;
+  p.quota=Number(v)>0?Number(v):1;
+  if(p.drawn>p.quota)p.drawn=p.quota;
+  renderPrizes();
+}
+
+function addPrize(){
+  state.prizes.push({id:makeId(),name:`獎項 ${state.prizes.length+1}`,quota:1,drawn:0});
+  renderPrizes();
+}
+
+function deletePrize(id){
+  if(state.prizes.length<=1)return alert("至少需要保留一個獎項。");
+  if(confirm("確定刪除此獎項？")){
+    state.prizes=state.prizes.filter(p=>p.id!==id);
+    renderPrizes();
+  }
+}
+
+function resetPrizes(){
+  if(confirm("確定恢復預設獎項？")){
+    state.prizes=defaultPrizes();
+    renderPrizes();
+  }
+}
+
+function clearPrizeRecords(){
+  if(confirm("確定清空所有獎項已抽數量？")){
+    state.prizes.forEach(p=>p.drawn=0);
+    renderPrizes();
+    renderPrizeSelect();
+    updatePrizeSummary();
+  }
+}
 
 function generateList(confirmAsk){
   const n=Number(document.getElementById("totalInput").value);
   if(!n||n<1)return alert("名單數量至少要 1");
   if(confirmAsk&&state.participants.length>0&&!confirm("重新生成會清空目前名稱與權重，確定嗎？"))return;
-  state.total=n;state.participants=[];
+  state.total=n;
+  state.participants=[];
   for(let i=1;i<=n;i++)state.participants.push({number:i,checked:true,name:"",weight:""});
-  document.getElementById("rangeEnd").value=n;renderList();
+  document.getElementById("rangeEnd").value=n;
+  renderList();
 }
+
 function renderList(){
-  const box=document.getElementById("listGrid"); box.innerHTML="";
+  const box=document.getElementById("listGrid");
+  box.innerHTML="";
   state.participants.forEach(p=>{
-    const div=document.createElement("div");div.className="item"+(p.checked?" checked":"");div.id=`item_${p.number}`;
-    div.innerHTML=`<div class="item-top"><input type="checkbox" id="check_${p.number}" ${p.checked?"checked":""} onchange="syncItem(${p.number})"><strong>No.${p.number}</strong></div>
-    <label>名稱</label><input type="text" id="name_${p.number}" value="${escapeAttr(p.name)}" placeholder="未填則使用 ${p.number}" oninput="syncItem(${p.number})">
-    <label>權重</label><input type="number" id="weight_${p.number}" value="${escapeAttr(p.weight)}" min="0" placeholder="1" oninput="syncItem(${p.number})">`;
+    const div=document.createElement("div");
+    div.className="item"+(p.checked?" checked":"");
+    div.id=`item_${p.number}`;
+    div.innerHTML=`
+      <div class="item-top">
+        <input type="checkbox" id="check_${p.number}" ${p.checked?"checked":""} onchange="syncItem(${p.number})">
+        <strong>No.${p.number}</strong>
+      </div>
+      <label>名稱</label>
+      <input type="text" id="name_${p.number}" value="${escapeAttr(p.name)}" placeholder="未填則使用 ${p.number}" oninput="syncItem(${p.number})">
+      <label>權重</label>
+      <input type="number" id="weight_${p.number}" value="${escapeAttr(p.weight)}" min="0" placeholder="1" oninput="syncItem(${p.number})">
+    `;
     box.appendChild(div);
   });
 }
-function saveInputs(){state.participants.forEach(p=>{const n=document.getElementById(`name_${p.number}`),w=document.getElementById(`weight_${p.number}`),c=document.getElementById(`check_${p.number}`);if(n)p.name=n.value;if(w)p.weight=w.value;if(c)p.checked=c.checked})}
-function syncItem(num){const p=state.participants.find(x=>x.number===num);p.checked=document.getElementById(`check_${num}`).checked;p.name=document.getElementById(`name_${num}`).value;p.weight=document.getElementById(`weight_${num}`).value;document.getElementById(`item_${num}`).classList.toggle("checked",p.checked)}
-function selectRange(){saveInputs();const s=Number(document.getElementById("rangeStart").value),e=Number(document.getElementById("rangeEnd").value);if(!s||!e||s>e)return alert("請輸入正確範圍");state.participants.forEach(p=>p.checked=p.number>=s&&p.number<=e);renderList()}
-function selectAll(){saveInputs();state.participants.forEach(p=>p.checked=true);renderList()}
-function unselectAll(){saveInputs();state.participants.forEach(p=>p.checked=false);renderList()}
-function clearNames(){if(confirm("確定清空全部名稱？")){saveInputs();state.participants.forEach(p=>p.name="");renderList()}}
-function clearWeights(){if(confirm("確定將全部權重重設為 1？")){saveInputs();state.participants.forEach(p=>p.weight="");renderList()}}
-function selected(){saveInputs();return state.participants.filter(p=>p.checked).map(p=>({number:p.number,name:p.name.trim()||String(p.number),weight:Number(p.weight)>0?Number(p.weight):1}))}
+
+function saveInputs(){
+  state.participants.forEach(p=>{
+    const n=document.getElementById(`name_${p.number}`);
+    const w=document.getElementById(`weight_${p.number}`);
+    const c=document.getElementById(`check_${p.number}`);
+    if(n)p.name=n.value;
+    if(w)p.weight=w.value;
+    if(c)p.checked=c.checked;
+  });
+}
+
+function syncItem(num){
+  const p=state.participants.find(x=>x.number===num);
+  p.checked=document.getElementById(`check_${num}`).checked;
+  p.name=document.getElementById(`name_${num}`).value;
+  p.weight=document.getElementById(`weight_${num}`).value;
+  document.getElementById(`item_${num}`).classList.toggle("checked",p.checked);
+}
+
+function selectRange(){
+  saveInputs();
+  const s=Number(document.getElementById("rangeStart").value);
+  const e=Number(document.getElementById("rangeEnd").value);
+  if(!s||!e||s>e)return alert("請輸入正確範圍");
+  state.participants.forEach(p=>p.checked=p.number>=s&&p.number<=e);
+  renderList();
+}
+
+function selectAll(){
+  saveInputs();
+  state.participants.forEach(p=>p.checked=true);
+  renderList();
+}
+
+function unselectAll(){
+  saveInputs();
+  state.participants.forEach(p=>p.checked=false);
+  renderList();
+}
+
+function clearNames(){
+  if(confirm("確定清空全部名稱？")){
+    saveInputs();
+    state.participants.forEach(p=>p.name="");
+    renderList();
+  }
+}
+
+function clearWeights(){
+  if(confirm("確定將全部權重重設為 1？")){
+    saveInputs();
+    state.participants.forEach(p=>p.weight="");
+    renderList();
+  }
+}
+
+function selected(){
+  saveInputs();
+  return state.participants
+    .filter(p=>p.checked)
+    .map(p=>({
+      number:p.number,
+      name:p.name.trim()||String(p.number),
+      weight:Number(p.weight)>0?Number(p.weight):1
+    }));
+}
 
 function buildGacha(){
-  state.active=selected();if(!state.active.length)return alert("請至少勾選一個號碼");
-  document.getElementById("setupPage").classList.add("hidden");document.getElementById("gachaPage").classList.remove("hidden");
-  renderPrizeSelect();renderBalls();window.scrollTo({top:0,behavior:"smooth"});
+  state.active=selected();
+  if(!state.active.length)return alert("請至少勾選一個號碼");
+  document.getElementById("setupPage").classList.add("hidden");
+  document.getElementById("gachaPage").classList.remove("hidden");
+  renderPrizeSelect();
+  renderBalls();
+  window.scrollTo({top:0,behavior:"smooth"});
 }
-function backToSetup(){if(state.isDrawing)return alert("抽獎進行中，請等待完成。");document.getElementById("gachaPage").classList.add("hidden");document.getElementById("setupPage").classList.remove("hidden");renderList();renderPrizes()}
+
+function backToSetup(){
+  if(state.isDrawing)return alert("抽獎進行中，請等待完成。");
+  stopMixBalls();
+  document.getElementById("gachaPage").classList.add("hidden");
+  document.getElementById("setupPage").classList.remove("hidden");
+  renderList();
+  renderPrizes();
+}
+
 function renderPrizeSelect(){
-  const s=document.getElementById("prizeSelect");s.innerHTML="";
-  state.prizes.forEach(p=>{const r=Math.max(p.quota-p.drawn,0),o=document.createElement("option");o.value=p.id;o.textContent=`${p.name}｜剩餘 ${r} / ${p.quota}`;o.disabled=r<=0;s.appendChild(o)});
-  const f=state.prizes.find(p=>p.quota-p.drawn>0);if(f)s.value=f.id;changePrize();
+  const s=document.getElementById("prizeSelect");
+  s.innerHTML="";
+  state.prizes.forEach(p=>{
+    const r=Math.max(p.quota-p.drawn,0);
+    const o=document.createElement("option");
+    o.value=p.id;
+    o.textContent=`${p.name}｜剩餘 ${r} / ${p.quota}`;
+    o.disabled=r<=0;
+    s.appendChild(o);
+  });
+  const f=state.prizes.find(p=>p.quota-p.drawn>0);
+  if(f)s.value=f.id;
+  changePrize();
 }
-function prize(){return state.prizes.find(p=>p.id===document.getElementById("prizeSelect").value)}
-function changePrize(){const p=prize();if(!p)return;document.getElementById("drawCount").value=Math.max(p.quota-p.drawn,0)||1;updatePrizeSummary()}
-function updatePrizeSummary(){document.getElementById("prizeSummary").innerHTML=state.prizes.map(p=>`<span class="prize-badge">🥚 ${escapeHtml(p.name)}｜已抽 ${p.drawn} / ${p.quota}｜剩餘 ${Math.max(p.quota-p.drawn,0)}</span>`).join("")}
+
+function prize(){
+  return state.prizes.find(p=>p.id===document.getElementById("prizeSelect").value);
+}
+
+function changePrize(){
+  const p=prize();
+  if(!p)return;
+  document.getElementById("drawCount").value=Math.max(p.quota-p.drawn,0)||1;
+  updatePrizeSummary();
+}
+
+function updatePrizeSummary(){
+  document.getElementById("prizeSummary").innerHTML=state.prizes.map(p=>
+    `<span class="prize-badge">🥚 ${escapeHtml(p.name)}｜已抽 ${p.drawn} / ${p.quota}｜剩餘 ${Math.max(p.quota-p.drawn,0)}</span>`
+  ).join("");
+}
+
 function renderBalls(){
-  const b=document.getElementById("gachaBalls");if(!b)return;b.innerHTML="";
+  const b=document.getElementById("gachaBalls");
+  if(!b)return;
+  b.innerHTML="";
   const cs=["#f87171","#fbbf24","#34d399","#60a5fa","#c084fc","#f472b6","#fb923c","#a3e635"];
-  for(let i=0;i<18;i++){const d=document.createElement("div");d.className="gacha-ball";d.style.background=`linear-gradient(135deg,${cs[i%cs.length]},#fff)`;d.style.left=(35+Math.random()*230)+"px";d.style.top=(55+Math.random()*190)+"px";b.appendChild(d)}
+  for(let i=0;i<20;i++){
+    const d=document.createElement("div");
+    d.className="gacha-ball";
+    d.style.background=`linear-gradient(135deg,${cs[i%cs.length]},#fff)`;
+    d.style.left=(32+Math.random()*235)+"px";
+    d.style.top=(48+Math.random()*198)+"px";
+    d.style.animationDelay=(Math.random()*0.35)+"s";
+    b.appendChild(d);
+  }
 }
+
+function mixBalls(){
+  if(state.isDrawing)return;
+  unlockAudio(state);
+
+  const machine=document.getElementById("gachaMachine");
+  machine.classList.add("mixing");
+  state.isMixing=true;
+
+  document.getElementById("resultTitle").textContent="攪動中...";
+  document.getElementById("resultSub").textContent="扭蛋球正在攪動，營造一下氣氛！";
+
+  playGachaSound(state);
+
+  clearTimeout(state.mixTimeout);
+  state.mixTimeout=setTimeout(()=>{
+    stopMixBalls();
+    document.getElementById("resultTitle").textContent="尚未抽獎";
+    document.getElementById("resultSub").textContent="請選擇獎項後開始扭蛋";
+  },2600);
+}
+
+function stopMixBalls(){
+  const machine=document.getElementById("gachaMachine");
+  if(machine)machine.classList.remove("mixing");
+  state.isMixing=false;
+  clearTimeout(state.mixTimeout);
+}
+
 function startDraw(){
-  if(state.isDrawing)return;unlockAudio(state);
-  const p=prize();if(!p)return alert("請選擇獎項。");
-  const remain=p.quota-p.drawn,count=Number(document.getElementById("drawCount").value);
-  if(remain<=0)return alert("此獎項已抽完，請選擇其他獎項。");if(!count||count<1)return alert("抽取數量至少為 1");if(count>remain)return alert(`此獎項剩餘名額只有 ${remain} 位。`);if(count>state.active.length)return alert("抽取數量不可大於目前人數");
+  if(state.isDrawing)return;
+  unlockAudio(state);
+
+  const p=prize();
+  if(!p)return alert("請選擇獎項。");
+
+  const remain=p.quota-p.drawn;
+  const count=Number(document.getElementById("drawCount").value);
+
+  if(remain<=0)return alert("此獎項已抽完，請選擇其他獎項。");
+  if(!count||count<1)return alert("抽取數量至少為 1");
+  if(count>remain)return alert(`此獎項剩餘名額只有 ${remain} 位。`);
+  if(count>state.active.length)return alert("抽取數量不可大於目前人數");
+
   if(!confirm(`請確認本次扭蛋資訊：\n\n目前獎項：${p.name}\n抽取數量：${count}\n參與人數：${state.active.length}\n\n是否開始扭蛋？`))return;
-  state.prizeId=p.id;state.drawTotal=count;state.drawIndex=0;state.winners=[];state.isDrawing=true;document.getElementById("drawBtn").disabled=true;document.getElementById("currentResult").textContent="扭蛋中...";nextOne();
+
+  stopMixBalls();
+
+  state.prizeId=p.id;
+  state.drawTotal=count;
+  state.drawIndex=0;
+  state.winners=[];
+  state.isDrawing=true;
+
+  document.getElementById("drawBtn").disabled=true;
+  document.getElementById("mixBtn").disabled=true;
+  document.getElementById("currentResult").textContent="扭蛋中...";
+
+  nextOne();
 }
+
 function nextOne(){
-  const used=new Set(state.winners.map(w=>w.number));const winner=weightedPick(state.active.filter(p=>!used.has(p.number)));state.winners.push(winner);
-  const m=document.getElementById("gachaMachine"),drop=document.getElementById("gachaDrop");document.getElementById("resultTitle").textContent="扭蛋中...";document.getElementById("resultSub").textContent=`第 ${state.drawIndex+1} 顆扭蛋中`;
-  m.classList.add("shake");drop.classList.remove("drop");void drop.offsetWidth;playGachaSound(state);
-  setTimeout(()=>{drop.classList.add("drop")},900);
-  setTimeout(()=>{m.classList.remove("shake");showWinner(winner)},2100);
+  const used=new Set(state.winners.map(w=>w.number));
+  const winner=weightedPick(state.active.filter(p=>!used.has(p.number)));
+  state.winners.push(winner);
+
+  const m=document.getElementById("gachaMachine");
+  const drop=document.getElementById("gachaDrop");
+  const flash=document.getElementById("gachaFlash");
+
+  document.getElementById("resultTitle").textContent="扭蛋中...";
+  document.getElementById("resultSub").textContent=`第 ${state.drawIndex+1} 顆扭蛋中`;
+
+  m.classList.add("mixing");
+  drop.classList.remove("drop","opening");
+  flash.classList.remove("burst");
+  void drop.offsetWidth;
+
+  playGachaSound(state);
+
+  setTimeout(()=>{
+    m.classList.remove("mixing");
+    m.classList.add("shake");
+  },900);
+
+  setTimeout(()=>{
+    drop.classList.add("drop");
+  },1200);
+
+  setTimeout(()=>{
+    m.classList.remove("shake");
+    drop.classList.add("opening");
+    flash.classList.add("burst");
+  },2350);
+
+  setTimeout(()=>{
+    showWinner(winner);
+  },3250);
 }
+
 function showWinner(winner){
-  const p=state.prizes.find(x=>x.id===state.prizeId),now=new Date().toLocaleString("zh-TW",{hour12:false});
+  const p=state.prizes.find(x=>x.id===state.prizeId);
+  const now=new Date().toLocaleString("zh-TW",{hour12:false});
+
   document.getElementById("winnerPrize").textContent=p?`🥚 ${p.name}`:"";
-  document.getElementById("winnerName").textContent=state.drawTotal===1?`第 1 位：${winner.name}`:`第 ${state.drawIndex+1} 位：${winner.name}`;
+  document.getElementById("winnerName").textContent=state.drawTotal===1
+    ?`第 1 位：${winner.name}`
+    :`第 ${state.drawIndex+1} 位：${winner.name}`;
   document.getElementById("winnerTime").textContent=`抽獎時間：${now}`;
   document.getElementById("winnerBtn").textContent=state.drawIndex<state.drawTotal-1?"下一位":"確認";
   document.getElementById("winnerMask").classList.remove("hidden");
 }
-function winnerModalNext(){document.getElementById("winnerMask").classList.add("hidden");state.drawIndex++;if(state.drawIndex<state.drawTotal){nextOne();return}finish()}
-function finish(){
-  const noRepeat=document.getElementById("noRepeat").checked,p=state.prizes.find(x=>x.id===state.prizeId),name=p?p.name:"未命名獎項",text=state.winners.map((w,i)=>`第 ${i+1} 位：${w.name}（${w.number}號）`).join("\n"),time=new Date().toLocaleString("zh-TW",{hour12:false}),code=makeVerifyCode(`${time}|${name}|${JSON.stringify(state.winners)}|${state.active.length}`);
-  document.getElementById("resultTitle").textContent="恭喜中獎";document.getElementById("resultSub").textContent=`${name}｜本次抽出 ${state.winners.length} 位`;document.getElementById("currentResult").textContent=text;
-  state.records.unshift(`${time}\n【${name}】\n${text}\n公平性驗證碼：${code}`);renderRecords();
-  if(p){p.drawn+=state.winners.length;if(p.drawn>p.quota)p.drawn=p.quota}
-  if(noRepeat){const set=new Set(state.winners.map(x=>x.number));state.active=state.active.filter(x=>!set.has(x.number));state.participants.forEach(p=>{if(set.has(p.number))p.checked=false})}
-  renderPrizeSelect();updatePrizeSummary();renderPrizes();state.isDrawing=false;document.getElementById("drawBtn").disabled=false;
+
+function winnerModalNext(){
+  document.getElementById("winnerMask").classList.add("hidden");
+  state.drawIndex++;
+  if(state.drawIndex<state.drawTotal){
+    nextOne();
+    return;
+  }
+  finish();
 }
-function renderRecords(){document.getElementById("records").textContent=state.records.length?state.records.map((x,i)=>`${i+1}. ${x}`).join("\n\n"):"尚無紀錄"}
-function clearRecords(){if(confirm("確定清除抽獎紀錄？")){state.records=[];renderRecords()}}
+
+function finish(){
+  const noRepeat=document.getElementById("noRepeat").checked;
+  const p=state.prizes.find(x=>x.id===state.prizeId);
+  const name=p?p.name:"未命名獎項";
+  const text=state.winners.map((w,i)=>`第 ${i+1} 位：${w.name}（${w.number}號）`).join("\n");
+  const time=new Date().toLocaleString("zh-TW",{hour12:false});
+  const code=makeVerifyCode(`${time}|${name}|${JSON.stringify(state.winners)}|${state.active.length}`);
+
+  document.getElementById("resultTitle").textContent="恭喜中獎";
+  document.getElementById("resultSub").textContent=`${name}｜本次抽出 ${state.winners.length} 位`;
+  document.getElementById("currentResult").textContent=text;
+
+  state.records.unshift(`${time}\n【${name}】\n${text}\n公平性驗證碼：${code}`);
+  renderRecords();
+
+  if(p){
+    p.drawn+=state.winners.length;
+    if(p.drawn>p.quota)p.drawn=p.quota;
+  }
+
+  if(noRepeat){
+    const set=new Set(state.winners.map(x=>x.number));
+    state.active=state.active.filter(x=>!set.has(x.number));
+    state.participants.forEach(p=>{
+      if(set.has(p.number))p.checked=false;
+    });
+  }
+
+  renderPrizeSelect();
+  updatePrizeSummary();
+  renderPrizes();
+
+  state.isDrawing=false;
+  document.getElementById("drawBtn").disabled=false;
+  document.getElementById("mixBtn").disabled=false;
+}
+
+function renderRecords(){
+  document.getElementById("records").textContent=state.records.length
+    ?state.records.map((x,i)=>`${i+1}. ${x}`).join("\n\n")
+    :"尚無紀錄";
+}
+
+function clearRecords(){
+  if(confirm("確定清除抽獎紀錄？")){
+    state.records=[];
+    renderRecords();
+  }
+}
 
 renderPrizes();
 generateList(false);

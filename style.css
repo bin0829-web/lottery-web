@@ -72,7 +72,7 @@ button:disabled{opacity:.55;cursor:not-allowed}
 .gacha-area{min-height:650px;display:flex;align-items:center;justify-content:center;flex-direction:column}
 .gacha-machine{width:430px;max-width:90vw;height:560px;position:relative}
 .gacha-top{position:absolute;left:50%;top:0;transform:translateX(-50%);width:340px;height:320px;border-radius:50% 50% 42% 42%;background:radial-gradient(circle at 35% 25%,rgba(255,255,255,.75),rgba(255,255,255,.1) 28%,rgba(239,68,68,.45) 70%),rgba(239,68,68,.35);border:10px solid #991b1b;overflow:hidden;box-shadow:inset 0 0 25px rgba(255,255,255,.55),0 14px 24px rgba(0,0,0,.2)}
-.gacha-ball{position:absolute;width:56px;height:56px;border-radius:50%;border:4px solid rgba(0,0,0,.15);box-shadow:inset -8px -8px 10px rgba(0,0,0,.12),inset 6px 6px 10px rgba(255,255,255,.55)}
+.gacha-ball{position:absolute;width:56px;height:56px;border-radius:50%;border:4px solid rgba(0,0,0,.15);box-shadow:inset -8px -8px 10px rgba(0,0,0,.12),inset 6px 6px 10px rgba(255,255,255,.55);transition:transform .25s}
 .gacha-base{position:absolute;left:50%;bottom:20px;transform:translateX(-50%);width:360px;height:250px;border-radius:30px;background:linear-gradient(180deg,#facc15,#d97706 60%,#92400e);border:10px solid #7c2d12;box-shadow:inset 0 8px 10px rgba(255,255,255,.35),0 14px 24px rgba(0,0,0,.22)}
 .gacha-window{position:absolute;left:50%;top:62px;transform:translateX(-50%);width:190px;height:70px;border-radius:16px;background:#fff8ec;border:6px solid #7c2d12;display:flex;align-items:center;justify-content:center;font-size:26px;font-weight:900;color:#8b4513}
 .gacha-handle{position:absolute;right:48px;top:105px;width:76px;height:76px;border-radius:50%;background:radial-gradient(circle,#fef3c7,#f59e0b 58%,#92400e);border:7px solid #7c2d12;box-shadow:0 6px 10px rgba(0,0,0,.25)}
@@ -81,10 +81,23 @@ button:disabled{opacity:.55;cursor:not-allowed}
 .gacha-drop{position:absolute;left:50%;bottom:100px;transform:translateX(-50%);width:72px;height:72px;border-radius:50%;background:linear-gradient(135deg,#fef08a,#f97316);border:5px solid #92400e;opacity:0;z-index:5}
 .gacha-machine.shake{animation:gachaShake .55s linear infinite}
 .gacha-machine.shake .gacha-handle{animation:handleSpin .55s linear infinite}
+.gacha-machine.mixing{animation:gachaShake .45s linear infinite}
+.gacha-machine.mixing .gacha-handle{animation:handleSpin .45s linear infinite}
+.gacha-machine.mixing .gacha-top{animation:gachaGlow .45s linear infinite alternate}
+.gacha-machine.mixing .gacha-ball{animation:ballMix .6s linear infinite}
+.gacha-machine.mixing .gacha-ball:nth-child(2n){animation-duration:.48s;animation-direction:reverse}
+.gacha-machine.mixing .gacha-ball:nth-child(3n){animation-duration:.7s}
 .gacha-drop.drop{animation:ballDrop 1.05s ease-out forwards}
+.gacha-drop.opening{animation:capsuleOpen .95s ease-out forwards}
+.gacha-flash{position:absolute;left:50%;bottom:54px;transform:translateX(-50%);width:20px;height:20px;border-radius:50%;background:white;opacity:0;z-index:6;pointer-events:none}
+.gacha-flash.burst{animation:flashBurst .8s ease-out forwards}
 @keyframes gachaShake{0%,100%{transform:translateX(0)}25%{transform:translateX(-7px) rotate(-1deg)}50%{transform:translateX(7px) rotate(1deg)}75%{transform:translateX(-4px) rotate(-.5deg)}}
 @keyframes handleSpin{from{transform:rotate(0)}to{transform:rotate(360deg)}}
 @keyframes ballDrop{0%{opacity:0;bottom:230px;transform:translateX(-50%) scale(.5)}30%{opacity:1}70%{bottom:70px;transform:translateX(-50%) scale(1.05)}100%{opacity:1;bottom:38px;transform:translateX(-50%) scale(1)}}
+@keyframes gachaGlow{from{box-shadow:inset 0 0 25px rgba(255,255,255,.55),0 14px 24px rgba(0,0,0,.2)}to{box-shadow:inset 0 0 35px rgba(255,255,255,.8),0 14px 24px rgba(0,0,0,.2),0 0 28px rgba(250,204,21,.65)}}
+@keyframes ballMix{0%{transform:translate(0,0) rotate(0deg)}25%{transform:translate(18px,-12px) rotate(90deg)}50%{transform:translate(-14px,16px) rotate(180deg)}75%{transform:translate(12px,8px) rotate(270deg)}100%{transform:translate(0,0) rotate(360deg)}}
+@keyframes capsuleOpen{0%{opacity:1;bottom:38px;transform:translateX(-50%) scale(1)}35%{transform:translateX(-50%) scale(1.18) rotate(-8deg)}65%{opacity:1;transform:translateX(-50%) scale(1.26) rotate(8deg);filter:brightness(1.6)}100%{opacity:0;transform:translateX(-50%) scale(1.55);filter:brightness(2.2)}}
+@keyframes flashBurst{0%{opacity:0;transform:translateX(-50%) scale(.3);box-shadow:0 0 0 rgba(255,255,255,0)}25%{opacity:1}100%{opacity:0;transform:translateX(-50%) scale(18);box-shadow:0 0 60px rgba(255,255,255,.9)}}
 @media(max-width:900px){
  h1{font-size:32px;gap:8px} h1 .title-text{white-space:normal}
  .main-wheel,.main-gacha{grid-template-columns:1fr}
