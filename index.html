@@ -4,114 +4,8 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>NM4DJ專屬抽獎工具</title>
-<style>
-*{box-sizing:border-box}
-body{margin:0;font-family:"Microsoft JhengHei",Arial,sans-serif;background:#fffdf6;color:#3b2a1a;overflow-x:hidden}
-.hidden{display:none!important}
-header{text-align:center;padding:20px 12px 8px}
-h1{margin:0;color:#8b4513;display:flex;align-items:center;justify-content:center;gap:14px;flex-wrap:nowrap;font-size:48px;line-height:1.15;text-align:center}
-h1 .mushroom{flex-shrink:0}
-h1 .title-text{white-space:nowrap}
-.container{max-width:1250px;margin:auto;padding:16px}
-.panel{background:#fff8ec;border:4px solid #9b642f;border-radius:26px;padding:22px;margin-bottom:16px;box-shadow:0 8px 18px rgba(0,0,0,.08)}
-.row{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
-input,button,select{border-radius:14px;padding:10px 14px;border:3px solid #f6b26b;font-size:16px}
-button{cursor:pointer;font-weight:bold;background:#31c26b;color:#073b1c;border:4px solid #8b5a2b;box-shadow:0 5px 0 #7a4a20}
-button.red{background:#ef4444;color:white}
-button.blue{background:#60a5fa;color:white}
-button.gray{background:#e5e7eb;color:#333}
-button.orange{background:#fbbf24;color:#4a2a00}
-button.purple{background:#c084fc;color:#3b0764}
-button:active{transform:translateY(3px);box-shadow:0 1px 0 #7a4a20}
-button:disabled{opacity:.55;cursor:not-allowed}
-.small{font-size:14px;color:#7c5a35}
-.tool-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:18px;margin-top:18px}
-.tool-card{background:white;border:4px solid #9b642f;border-radius:24px;padding:24px;cursor:pointer;transition:.18s;box-shadow:0 8px 16px rgba(0,0,0,.08)}
-.tool-card:hover{transform:translateY(-4px);box-shadow:0 14px 26px rgba(0,0,0,.15)}
-.tool-card h2{margin:0 0 10px;color:#8b4513;font-size:30px}
-.tool-card p{color:#7c5a35;line-height:1.7}
-.tool-card.disabled{opacity:.55;cursor:not-allowed}
-.prize-table{width:100%;border-collapse:collapse;margin-top:12px;background:white;border-radius:14px;overflow:hidden}
-.prize-table th,.prize-table td{border-bottom:1px solid #e6c7a3;padding:10px;text-align:left}
-.prize-table th{background:#ffe7b7}
-.prize-table input{width:100%}
-.prize-badge{display:inline-block;background:#fff1c7;border:2px solid #9b642f;border-radius:999px;padding:6px 12px;margin:4px;font-weight:bold}
-.list-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(170px,1fr));gap:10px;margin-top:14px}
-.item{background:white;border:2px solid #e6c7a3;border-radius:14px;padding:10px}
-.item.checked{background:#fff1c7;border-color:#9b642f}
-.item-top{display:flex;align-items:center;gap:8px;margin-bottom:8px}
-.item input[type="text"],.item input[type="number"]{width:100%;margin-top:4px}
-.item label{font-size:13px;color:#6b4b2b}
-.main-wheel,.main-gacha{display:grid;grid-template-columns:1fr 360px;gap:24px;align-items:center}
-.result-box{background:#fff8ec;border:4px solid #9b642f;border-radius:18px;padding:20px;text-align:center}
-.big-result{color:#dc2626;font-size:34px;font-weight:bold;line-height:1.6}
-.record{background:white;border:2px dashed #f6b26b;border-radius:12px;padding:12px;min-height:80px;max-height:260px;overflow:auto;text-align:left;white-space:pre-wrap;line-height:1.6}
-.lock,.winner-mask{position:fixed;inset:0;background:rgba(0,0,0,.45);display:flex;justify-content:center;align-items:center;z-index:99;padding:20px}
-.lock{background:rgba(255,253,246,.97)}
-.lock-box{width:min(760px,95%);text-align:center}
-.lock-box p{text-align:center;font-size:34px;margin:24px 0}
-#passwordInput{width:100%;text-align:center;font-size:34px;height:82px}
-.login-btn{min-width:220px;height:86px;font-size:40px;margin-top:24px}
-.winner-box{width:min(760px,95%);background:#fff8ec;border:6px solid #9b642f;border-radius:26px;text-align:center;padding:34px 22px;box-shadow:0 20px 60px rgba(0,0,0,.35)}
-.winner-title{font-size:40px;color:#dc2626;font-weight:bold;margin-bottom:20px}
-.winner-prize{font-size:28px;color:#92400e;font-weight:bold;margin-bottom:12px}
-.winner-name{font-size:38px;color:#7e22ce;font-weight:bold;line-height:1.5;margin-bottom:18px}
-.winner-time{font-size:20px;color:#374151;margin-bottom:20px}
-
-/* 幸運轉盤 */
-.wheel-area{text-align:center;min-height:660px;display:flex;flex-direction:column;align-items:center;justify-content:center}
-.pointer-wrap{height:72px;display:flex;align-items:flex-end;justify-content:center;margin-bottom:-22px;z-index:20}
-.pointer{width:52px;height:76px;position:relative;transform-origin:50% 10%;z-index:20}
-.pointer::before{content:"";position:absolute;left:50%;top:0;transform:translateX(-50%);width:36px;height:56px;background:linear-gradient(180deg,#ef4444,#991b1b);clip-path:polygon(50% 100%,0 0,100% 0);border:3px solid #7f1d1d;filter:drop-shadow(0 4px 4px rgba(0,0,0,.35))}
-.pointer::after{content:"";position:absolute;left:50%;top:-8px;transform:translateX(-50%);width:28px;height:28px;border-radius:50%;background:radial-gradient(circle,#fff7ad,#fbbf24 55%,#92400e);border:3px solid #7c2d12}
-.pointer.tick{animation:pointerTick .08s ease-out}
-@keyframes pointerTick{0%{transform:rotate(0)}40%{transform:rotate(-13deg)}100%{transform:rotate(0)}}
-.wheel-frame{width:580px;height:580px;max-width:90vw;max-height:90vw;border-radius:50%;padding:18px;position:relative;background:radial-gradient(circle at 35% 25%,rgba(255,255,255,.9),rgba(255,255,255,0) 18%),linear-gradient(135deg,#fff2a6,#d97706 40%,#7c2d12 65%,#fbbf24);border:8px solid #7c2d12;box-shadow:inset 0 0 0 8px #facc15,inset 0 0 0 16px #92400e,0 18px 36px rgba(0,0,0,.28)}
-.wheel-frame.spinning{animation:wheelGlow .55s linear infinite alternate}
-@keyframes wheelGlow{from{box-shadow:inset 0 0 0 8px #facc15,inset 0 0 0 16px #92400e,0 18px 36px rgba(0,0,0,.28),0 0 16px rgba(250,204,21,.3)}to{box-shadow:inset 0 0 0 8px #fde68a,inset 0 0 0 16px #92400e,0 18px 36px rgba(0,0,0,.28),0 0 38px rgba(250,204,21,.72)}}
-.wheel-clip{width:100%;height:100%;border-radius:50%;overflow:hidden;position:relative;background:white;border:5px solid #6b3f14}
-.wheel-spin{width:100%;height:100%;border-radius:50%;position:relative;will-change:transform;transform:rotate(0deg)}
-.wheel-shine{position:absolute;inset:0;border-radius:50%;pointer-events:none;background:radial-gradient(circle at 34% 25%,rgba(255,255,255,.55),rgba(255,255,255,0) 24%),radial-gradient(circle at 50% 50%,rgba(255,255,255,0) 45%,rgba(0,0,0,.12) 100%);z-index:4}
-.wheel-center{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);width:136px;height:136px;border-radius:50%;background:radial-gradient(circle at 35% 25%,#fff8c5,#facc15 45%,#b45309 82%);border:8px solid #7c2d12;display:flex;align-items:center;justify-content:center;font-weight:900;font-size:26px;color:#5b3415;text-shadow:0 1px 0 rgba(255,255,255,.65);z-index:10;box-shadow:inset 0 5px 9px rgba(255,255,255,.6),inset 0 -8px 12px rgba(120,53,15,.35),0 8px 14px rgba(0,0,0,.28)}
-.label{position:absolute;left:50%;top:50%;width:130px;height:32px;margin-left:-65px;margin-top:-16px;display:flex;align-items:center;justify-content:center;text-align:center;font-size:15px;font-weight:bold;color:#5b3415;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;transform-origin:center center;pointer-events:none;z-index:3}
-.peg{position:absolute;left:50%;top:50%;width:12px;height:28px;margin-left:-6px;margin-top:-14px;border-radius:8px;background:linear-gradient(90deg,#92400e,#fef3c7,#f59e0b,#78350f);border:2px solid #78350f;box-shadow:0 2px 4px rgba(0,0,0,.28);transform-origin:center center;z-index:6}
-
-/* 扭蛋機 */
-.gacha-area{min-height:650px;display:flex;align-items:center;justify-content:center;flex-direction:column}
-.gacha-machine{width:430px;max-width:90vw;height:560px;position:relative}
-.gacha-top{position:absolute;left:50%;top:0;transform:translateX(-50%);width:340px;height:320px;border-radius:50% 50% 42% 42%;background:radial-gradient(circle at 35% 25%,rgba(255,255,255,.75),rgba(255,255,255,.1) 28%,rgba(239,68,68,.45) 70%),rgba(239,68,68,.35);border:10px solid #991b1b;overflow:hidden;box-shadow:inset 0 0 25px rgba(255,255,255,.55),0 14px 24px rgba(0,0,0,.2)}
-.gacha-ball{position:absolute;width:56px;height:56px;border-radius:50%;border:4px solid rgba(0,0,0,.15);box-shadow:inset -8px -8px 10px rgba(0,0,0,.12),inset 6px 6px 10px rgba(255,255,255,.55)}
-.gacha-base{position:absolute;left:50%;bottom:20px;transform:translateX(-50%);width:360px;height:250px;border-radius:30px;background:linear-gradient(180deg,#facc15,#d97706 60%,#92400e);border:10px solid #7c2d12;box-shadow:inset 0 8px 10px rgba(255,255,255,.35),0 14px 24px rgba(0,0,0,.22)}
-.gacha-window{position:absolute;left:50%;top:62px;transform:translateX(-50%);width:190px;height:70px;border-radius:16px;background:#fff8ec;border:6px solid #7c2d12;display:flex;align-items:center;justify-content:center;font-size:26px;font-weight:900;color:#8b4513}
-.gacha-handle{position:absolute;right:48px;top:105px;width:76px;height:76px;border-radius:50%;background:radial-gradient(circle,#fef3c7,#f59e0b 58%,#92400e);border:7px solid #7c2d12;box-shadow:0 6px 10px rgba(0,0,0,.25)}
-.gacha-handle::after{content:"";position:absolute;left:50%;top:50%;width:20px;height:72px;background:#7c2d12;border-radius:12px;transform:translate(-50%,-50%) rotate(35deg)}
-.gacha-slot{position:absolute;left:50%;bottom:36px;transform:translateX(-50%);width:120px;height:54px;border-radius:0 0 40px 40px;background:#3b2a1a;border:5px solid #7c2d12}
-.gacha-drop{position:absolute;left:50%;bottom:100px;transform:translateX(-50%);width:72px;height:72px;border-radius:50%;background:linear-gradient(135deg,#fef08a,#f97316);border:5px solid #92400e;opacity:0;z-index:5}
-.gacha-machine.shake{animation:gachaShake .55s linear infinite}
-.gacha-machine.shake .gacha-handle{animation:handleSpin .55s linear infinite}
-.gacha-drop.drop{animation:ballDrop 1.05s ease-out forwards}
-@keyframes gachaShake{0%,100%{transform:translateX(0)}25%{transform:translateX(-7px) rotate(-1deg)}50%{transform:translateX(7px) rotate(1deg)}75%{transform:translateX(-4px) rotate(-.5deg)}}
-@keyframes handleSpin{from{transform:rotate(0)}to{transform:rotate(360deg)}}
-@keyframes ballDrop{0%{opacity:0;bottom:230px;transform:translateX(-50%) scale(.5)}30%{opacity:1}70%{bottom:70px;transform:translateX(-50%) scale(1.05)}100%{opacity:1;bottom:38px;transform:translateX(-50%) scale(1)}}
-
-@media(max-width:900px){
-  h1{font-size:32px;gap:8px}
-  h1 .title-text{white-space:normal}
-  .main-wheel,.main-gacha{grid-template-columns:1fr}
-  .wheel-area{min-height:460px}
-  .wheel-frame{width:380px;height:380px;padding:12px}
-  .wheel-center{width:96px;height:96px;font-size:20px;border-width:6px}
-  .label{width:90px;margin-left:-45px;font-size:11px}
-  .peg{width:8px;height:20px;margin-left:-4px;margin-top:-10px}
-  .gacha-machine{width:360px;height:500px}
-  .gacha-top{width:300px;height:285px}
-  .gacha-base{width:310px;height:225px}
-  .winner-title{font-size:30px}.winner-prize{font-size:22px}.winner-name{font-size:28px}.lock-box p{font-size:24px}
-  #passwordInput{font-size:26px;height:70px}.login-btn{font-size:32px;height:76px}
-}
-</style>
+<link rel="stylesheet" href="style.css">
 </head>
-
 <body>
 
 <div id="lock" class="lock">
@@ -125,297 +19,38 @@ button:disabled{opacity:.55;cursor:not-allowed}
   </div>
 </div>
 
-<div id="winnerMask" class="winner-mask hidden">
-  <div class="winner-box">
-    <div class="winner-title">🎉 恭喜中獎 🎉</div>
-    <div id="winnerPrize" class="winner-prize"></div>
-    <div id="winnerName" class="winner-name"></div>
-    <div id="winnerTime" class="winner-time"></div>
-    <button id="winnerBtn" class="orange" onclick="winnerModalNext()">確認</button>
-  </div>
-</div>
-
 <header>
-  <h1><span class="mushroom">🍄</span><span id="mainTitleText" class="title-text">NM4DJ專屬抽獎工具</span><span class="mushroom">🍄</span></h1>
+  <h1><span class="mushroom">🍄</span><span class="title-text">NM4DJ專屬抽獎工具</span><span class="mushroom">🍄</span></h1>
 </header>
 
 <div class="container">
-
-<section id="homePage">
-  <div class="panel">
-    <h2>請選擇抽獎工具</h2>
-    <p class="small">目前已開放幸運轉盤與扭蛋機，兩個工具資料完全獨立。</p>
-    <div class="tool-grid">
-      <div class="tool-card" onclick="openWheelHome()"><h2>🎡 幸運轉盤</h2><p>轉盤動畫、停止控制、分界柱答答聲、獎項、權重、紀錄。</p></div>
-      <div class="tool-card" onclick="openGachaHome()"><h2>🥚 扭蛋機</h2><p>扭蛋機搖晃、掉球動畫、獎項、權重、紀錄。</p></div>
-      <div class="tool-card disabled"><h2>🎲 隨機抽人</h2><p>之後可新增：不使用動畫，快速抽名單。</p></div>
-      <div class="tool-card disabled"><h2>🎁 獎箱抽獎</h2><p>之後可新增：開箱動畫與獎池模式。</p></div>
+  <section id="homePage">
+    <div class="panel">
+      <h2>請選擇抽獎工具</h2>
+      <p class="small">目前已開放幸運轉盤與扭蛋機，兩個工具資料完全獨立。</p>
+      <div class="tool-grid">
+        <a class="tool-card" href="wheel/">
+          <h2>🎡 幸運轉盤</h2>
+          <p>轉盤動畫、停止控制、分界柱答答聲、獎項、權重、紀錄。</p>
+        </a>
+        <a class="tool-card" href="gacha/">
+          <h2>🥚 扭蛋機</h2>
+          <p>扭蛋機搖晃、掉球動畫、獎項、權重、紀錄。</p>
+        </a>
+        <div class="tool-card disabled">
+          <h2>🎲 隨機抽人</h2>
+          <p>之後可新增：不使用動畫，快速抽名單。</p>
+        </div>
+        <div class="tool-card disabled">
+          <h2>🎁 獎箱抽獎</h2>
+          <p>之後可新增：開箱動畫與獎池模式。</p>
+        </div>
+      </div>
     </div>
-  </div>
-</section>
-
-<section id="wheelSetupPage" class="hidden"></section>
-<section id="wheelPage" class="hidden"></section>
-
-<section id="gachaSetupPage" class="hidden"></section>
-<section id="gachaPage" class="hidden"></section>
-
+  </section>
 </div>
 
-<script>
-const PASSWORD="nm4dj2026";
-let activeTool="";
-
-function login(){
-  if(document.getElementById("passwordInput").value===PASSWORD){
-    document.getElementById("lock").classList.add("hidden");
-  }else document.getElementById("passwordMsg").textContent="密碼錯誤";
-}
-document.getElementById("passwordInput").addEventListener("keydown",e=>{if(e.key==="Enter")login()});
-
-function showOnly(id,title){
-  ["homePage","wheelSetupPage","wheelPage","gachaSetupPage","gachaPage"].forEach(x=>document.getElementById(x).classList.add("hidden"));
-  document.getElementById(id).classList.remove("hidden");
-  document.getElementById("mainTitleText").textContent=title;
-  window.scrollTo({top:0,behavior:"smooth"});
-}
-function backHome(){activeTool="";showOnly("homePage","NM4DJ專屬抽獎工具")}
-
-function makeId(){return"p_"+Date.now()+"_"+Math.floor(Math.random()*999999)}
-function normalizeAngle(a){return((a%360)+360)%360}
-function easeOutCubic(t){return 1-Math.pow(1-t,3)}
-function escapeAttr(str){return String(str??"").replaceAll("&","&amp;").replaceAll('"',"&quot;").replaceAll("<","&lt;").replaceAll(">","&gt;")}
-function escapeHtml(str){return String(str??"").replaceAll("&","&amp;").replaceAll("<","&lt;").replaceAll(">","&gt;").replaceAll('"',"&quot;").replaceAll("'","&#039;")}
-function makeVerifyCode(str){
-  let h1=0xdeadbeef,h2=0x41c6ce57;
-  for(let i=0;i<str.length;i++){const ch=str.charCodeAt(i);h1=Math.imul(h1^ch,2654435761);h2=Math.imul(h2^ch,1597334677)}
-  h1=Math.imul(h1^(h1>>>16),2246822507)^Math.imul(h2^(h2>>>13),3266489909);
-  h2=Math.imul(h2^(h2>>>16),2246822507)^Math.imul(h1^(h1>>>13),3266489909);
-  return"V-"+(4294967296*(2097151&h2)+(h1>>>0)).toString(36).toUpperCase();
-}
-function weightedPick(pool){
-  const total=pool.reduce((s,x)=>s+x.weight,0);let r=Math.random()*total;
-  for(const p of pool){r-=p.weight;if(r<=0)return p}
-  return pool[pool.length-1];
-}
-function defaultPrizes(){return[{id:makeId(),name:"一獎",quota:1,drawn:0},{id:makeId(),name:"二獎",quota:3,drawn:0},{id:makeId(),name:"三獎",quota:10,drawn:0}]}
-
-/* ================= 幸運轉盤：獨立資料 ================= */
-const wheel={
-  total:60,participants:[],active:[],segments:[],rotation:0,records:[],prizes:defaultPrizes(),
-  drawTotal:0,drawIndex:0,winners:[],prizeId:null,isDrawing:false,isFree:false,raf:null,lastTime:0,speed:520,lastSector:null,audio:null
-};
-
-function openWheelHome(){activeTool="wheel";renderWheelSetupHTML();renderWheelPrizes();wheelGenerateList(false);showOnly("wheelSetupPage","NM4DJ專屬幸運轉盤")}
-function renderWheelSetupHTML(){
-document.getElementById("wheelSetupPage").innerHTML=`
-<div class="panel">
-  <div class="row" style="justify-content:space-between"><h2>幸運轉盤｜獎項設定</h2><button class="gray" onclick="backHome()">回工具首頁</button></div>
-  <p class="small">此設定只屬於幸運轉盤，不會影響扭蛋機。</p>
-  <div class="row"><button class="orange" onclick="wheelAddPrize()">新增獎項</button><button class="gray" onclick="wheelResetPrizes()">恢復預設獎項</button><button class="red" onclick="wheelClearPrizeRecords()">清空獎項已抽紀錄</button></div>
-  <table class="prize-table"><thead><tr><th style="width:45%">獎項名稱</th><th style="width:20%">名額</th><th style="width:20%">已抽</th><th style="width:15%">操作</th></tr></thead><tbody id="wheelPrizeBody"></tbody></table>
-</div>
-<div class="panel">
-  <h2>幸運轉盤｜名單設定</h2>
-  <p class="small">沒有輸入名稱時，使用號碼代表；沒有輸入權重時，權重為 1。</p>
-  <div class="row"><span>名單數量：</span><input id="wheelTotalInput" type="number" value="${wheel.total}" min="1" style="width:120px"><button class="orange" onclick="wheelGenerateList(true)">重新生成名單</button></div>
-  <hr>
-  <div class="row"><span>快速勾選：</span><input id="wheelRangeStart" type="number" value="1" min="1" style="width:100px"><span>到</span><input id="wheelRangeEnd" type="number" value="${wheel.total}" min="1" style="width:100px"><button onclick="wheelSelectRange()">套用範圍</button><button class="gray" onclick="wheelSelectAll()">全選</button><button class="gray" onclick="wheelUnselectAll()">全取消</button></div>
-  <div class="row" style="margin-top:12px"><button class="gray" onclick="wheelClearNames()">清空名稱</button><button class="gray" onclick="wheelClearWeights()">權重重設為 1</button><button class="blue" onclick="wheelBuild()">生成轉盤</button></div>
-  <div id="wheelListGrid" class="list-grid"></div>
-</div>`;
-}
-function wheelRenderList(){
- const box=document.getElementById("wheelListGrid"); if(!box)return; box.innerHTML="";
- wheel.participants.forEach(p=>{
-  const div=document.createElement("div");div.className="item"+(p.checked?" checked":"");div.id=`wheelItem_${p.number}`;
-  div.innerHTML=`<div class="item-top"><input type="checkbox" id="wheelCheck_${p.number}" ${p.checked?"checked":""} onchange="wheelSyncItem(${p.number})"><strong>No.${p.number}</strong></div>
-  <label>名稱</label><input type="text" id="wheelName_${p.number}" value="${escapeAttr(p.name)}" placeholder="未填則使用 ${p.number}" oninput="wheelSyncItem(${p.number})">
-  <label>權重</label><input type="number" id="wheelWeight_${p.number}" value="${escapeAttr(p.weight)}" min="0" placeholder="1" oninput="wheelSyncItem(${p.number})">`;
-  box.appendChild(div);
- });
-}
-function wheelGenerateList(confirmAsk){
- const inp=document.getElementById("wheelTotalInput"); const n=Number(inp?inp.value:wheel.total);
- if(!n||n<1)return alert("名單數量至少要 1");
- if(confirmAsk&&wheel.participants.length>0&&!confirm("重新生成會清空目前名稱與權重，確定嗎？"))return;
- wheel.total=n;wheel.participants=[];for(let i=1;i<=n;i++)wheel.participants.push({number:i,checked:true,name:"",weight:""});
- const e=document.getElementById("wheelRangeEnd");if(e)e.value=n;wheelRenderList();
-}
-function wheelSaveInputs(){
- wheel.participants.forEach(p=>{const n=document.getElementById(`wheelName_${p.number}`),w=document.getElementById(`wheelWeight_${p.number}`),c=document.getElementById(`wheelCheck_${p.number}`);if(n)p.name=n.value;if(w)p.weight=w.value;if(c)p.checked=c.checked});
-}
-function wheelSyncItem(num){const p=wheel.participants.find(x=>x.number===num);p.checked=document.getElementById(`wheelCheck_${num}`).checked;p.name=document.getElementById(`wheelName_${num}`).value;p.weight=document.getElementById(`wheelWeight_${num}`).value;document.getElementById(`wheelItem_${num}`).classList.toggle("checked",p.checked)}
-function wheelSelectRange(){wheelSaveInputs();const s=Number(document.getElementById("wheelRangeStart").value),e=Number(document.getElementById("wheelRangeEnd").value);if(!s||!e||s>e)return alert("請輸入正確範圍");wheel.participants.forEach(p=>p.checked=p.number>=s&&p.number<=e);wheelRenderList()}
-function wheelSelectAll(){wheelSaveInputs();wheel.participants.forEach(p=>p.checked=true);wheelRenderList()}
-function wheelUnselectAll(){wheelSaveInputs();wheel.participants.forEach(p=>p.checked=false);wheelRenderList()}
-function wheelClearNames(){if(!confirm("確定清空全部名稱？"))return;wheelSaveInputs();wheel.participants.forEach(p=>p.name="");wheelRenderList()}
-function wheelClearWeights(){if(!confirm("確定將全部權重重設為 1？"))return;wheelSaveInputs();wheel.participants.forEach(p=>p.weight="");wheelRenderList()}
-function wheelSelected(){wheelSaveInputs();return wheel.participants.filter(p=>p.checked).map(p=>({number:p.number,name:p.name.trim()||String(p.number),weight:Number(p.weight)>0?Number(p.weight):1}))}
-function renderWheelPrizes(){
- const body=document.getElementById("wheelPrizeBody"); if(!body)return; body.innerHTML="";
- wheel.prizes.forEach(p=>{const tr=document.createElement("tr");tr.innerHTML=`<td><input value="${escapeAttr(p.name)}" oninput="wheelUpdatePrizeName('${p.id}',this.value)"></td><td><input type="number" min="1" value="${p.quota}" oninput="wheelUpdatePrizeQuota('${p.id}',this.value)"></td><td>${p.drawn} / ${p.quota}</td><td><button class="red" onclick="wheelDeletePrize('${p.id}')">刪除</button></td>`;body.appendChild(tr)});
-}
-function wheelUpdatePrizeName(id,v){const p=wheel.prizes.find(x=>x.id===id);if(p)p.name=v.trim()||"未命名獎項"}
-function wheelUpdatePrizeQuota(id,v){const p=wheel.prizes.find(x=>x.id===id);if(!p)return;p.quota=Number(v)>0?Number(v):1;if(p.drawn>p.quota)p.drawn=p.quota;renderWheelPrizes()}
-function wheelAddPrize(){wheel.prizes.push({id:makeId(),name:`獎項 ${wheel.prizes.length+1}`,quota:1,drawn:0});renderWheelPrizes()}
-function wheelDeletePrize(id){if(wheel.prizes.length<=1)return alert("至少需要保留一個獎項。");if(confirm("確定刪除此獎項？")){wheel.prizes=wheel.prizes.filter(p=>p.id!==id);renderWheelPrizes()}}
-function wheelResetPrizes(){if(confirm("確定恢復預設獎項？")){wheel.prizes=defaultPrizes();renderWheelPrizes()}}
-function wheelClearPrizeRecords(){if(confirm("確定清空所有獎項已抽數量？")){wheel.prizes.forEach(p=>p.drawn=0);renderWheelPrizes();wheelRenderPrizeSelect();wheelUpdatePrizeSummary()}}
-function wheelBuild(){
- wheel.active=wheelSelected(); if(!wheel.active.length)return alert("請至少勾選一個號碼");
- renderWheelPageHTML(); showOnly("wheelPage","NM4DJ專屬幸運轉盤"); wheelRenderPrizeSelect(); setTimeout(()=>wheelRenderWheel(),120);
-}
-function renderWheelPageHTML(){
-document.getElementById("wheelPage").innerHTML=`
-<div class="panel"><div class="row" style="justify-content:center">
-<span>目前獎項：</span><select id="wheelPrizeSelect" onchange="wheelChangePrize()" style="min-width:220px"></select>
-<span>抽取數量：</span><input id="wheelDrawCount" type="number" value="1" min="1" style="width:110px">
-<label><input id="wheelNoRepeat" type="checkbox"> 不重複中獎</label></div>
-<div id="wheelPrizeSummary" style="text-align:center;margin-top:10px"></div>
-<div class="row" style="justify-content:center;margin-top:10px"><button id="wheelDrawBtn" onclick="wheelDrawButton()">開始抽獎</button><button class="red" onclick="wheelClearRecords()">清除抽獎紀錄</button><button class="blue" onclick="openWheelHome()">關閉轉盤</button></div></div>
-<div class="main-wheel"><div class="wheel-area"><div class="pointer-wrap"><div id="wheelPointer" class="pointer"></div></div><div id="wheelFrame" class="wheel-frame"><div class="wheel-clip"><div id="wheelSpin" class="wheel-spin"><div class="wheel-shine"></div><div class="wheel-center">NM4DJ</div></div></div></div></div>
-<div class="result-box"><div class="small">本次抽獎結果</div><div id="wheelResultTitle" class="big-result">尚未抽獎</div><p id="wheelResultSub">請選擇獎項後開始抽獎</p><div id="wheelCurrentResult" class="record">尚無本次結果</div><h3>抽獎紀錄</h3><div id="wheelRecords" class="record">尚無紀錄</div></div></div>`;
- wheelRenderRecords();
-}
-function wheelRenderPrizeSelect(){const s=document.getElementById("wheelPrizeSelect");if(!s)return;s.innerHTML="";wheel.prizes.forEach(p=>{const r=Math.max(p.quota-p.drawn,0),o=document.createElement("option");o.value=p.id;o.textContent=`${p.name}｜剩餘 ${r} / ${p.quota}`;o.disabled=r<=0;s.appendChild(o)});const f=wheel.prizes.find(p=>p.quota-p.drawn>0);if(f)s.value=f.id;wheelChangePrize()}
-function wheelPrize(){const id=document.getElementById("wheelPrizeSelect").value;return wheel.prizes.find(p=>p.id===id)}
-function wheelChangePrize(){const p=wheelPrize();if(!p)return;document.getElementById("wheelDrawCount").value=Math.max(p.quota-p.drawn,0)||1;wheelUpdatePrizeSummary()}
-function wheelUpdatePrizeSummary(){const b=document.getElementById("wheelPrizeSummary");if(!b)return;b.innerHTML=wheel.prizes.map(p=>`<span class="prize-badge">🎁 ${escapeHtml(p.name)}｜已抽 ${p.drawn} / ${p.quota}｜剩餘 ${Math.max(p.quota-p.drawn,0)}</span>`).join("")}
-function wheelRenderWheel(){
- const spin=document.getElementById("wheelSpin"); if(!spin)return; spin.innerHTML=`<div class="wheel-shine"></div><div class="wheel-center">NM4DJ</div>`;
- const total=wheel.active.reduce((s,x)=>s+x.weight,0),same=wheel.active.every(x=>x.weight===wheel.active[0].weight);
- let grad=[],cur=0;wheel.segments=[];
- const size=document.querySelector(".wheel-frame").getBoundingClientRect().width||560,inner=size-52,labelD=inner*.31,pegD=inner*.47;
- wheel.active.forEach((p,i)=>{const deg=p.weight/total*360,start=cur,end=cur+deg,mid=start+deg/2,color=["#fca5a5","#fdba74","#fde68a","#86efac","#67e8f9","#93c5fd","#c4b5fd","#f9a8d4","#fef08a","#a7f3d0"][i%10];wheel.segments.push({participant:p,start,end,mid,index:i});grad.push(`${color} ${start}deg ${end}deg`);
- const peg=document.createElement("div");peg.className="peg";peg.style.transform=`rotate(${start}deg) translateY(-${pegD}px)`;spin.appendChild(peg);
- const lab=document.createElement("div");lab.className="label";lab.textContent=same?p.name:`${p.name} ${((p.weight/total)*100).toFixed(1)}%`;lab.style.transform=`rotate(${mid}deg) translateY(-${labelD}px) rotate(90deg)`;spin.appendChild(lab);cur=end});
- spin.style.background=`conic-gradient(${grad.join(",")})`;wheelApplyRotation();
-}
-function wheelDrawButton(){if(!wheel.isDrawing)wheelPrepareDraw();else if(wheel.isFree)wheelStop()}
-function wheelPrepareDraw(){
- unlockAudio(wheel);const p=wheelPrize();if(!p)return alert("請選擇獎項。");const remain=p.quota-p.drawn,count=Number(document.getElementById("wheelDrawCount").value);
- if(remain<=0)return alert("此獎項已抽完，請選擇其他獎項。");if(!count||count<1)return alert("抽取數量至少為 1");if(count>remain)return alert(`此獎項剩餘名額只有 ${remain} 位。`);if(count>wheel.active.length)return alert("抽取數量不可大於目前轉盤人數");
- if(!confirm(`請確認本次抽獎資訊：\n\n目前獎項：${p.name}\n抽取數量：${count}\n參與人數：${wheel.active.length}\n\n是否開始抽獎？`))return;
- wheel.prizeId=p.id;wheel.drawTotal=count;wheel.drawIndex=0;wheel.winners=[];document.getElementById("wheelCurrentResult").textContent="抽獎中...";wheelStartFreeSpin();
-}
-function wheelStartFreeSpin(){
- wheel.isDrawing=true;wheel.isFree=true;wheel.lastTime=performance.now();wheel.lastSector=wheelSectorIndex();document.getElementById("wheelDrawBtn").textContent="停止";document.getElementById("wheelDrawBtn").classList.add("red");document.getElementById("wheelFrame").classList.add("spinning");
- const p=wheel.prizes.find(x=>x.id===wheel.prizeId);document.getElementById("wheelResultTitle").textContent="抽獎中...";document.getElementById("wheelResultSub").textContent=`第 ${wheel.drawIndex+1} 位抽獎中｜${p?p.name:""}`;
- wheel.raf=requestAnimationFrame(wheelFreeStep);
-}
-function wheelFreeStep(now){if(!wheel.isFree)return;const dt=Math.min((now-wheel.lastTime)/1000,.05);wheel.lastTime=now;wheel.rotation+=wheel.speed*dt;wheelApplyRotation();wheelCheckTick();wheel.raf=requestAnimationFrame(wheelFreeStep)}
-function wheelStop(){
- wheel.isFree=false;if(wheel.raf)cancelAnimationFrame(wheel.raf);
- const winner=wheelPickOne();wheel.winners.push(winner);const seg=wheel.segments.find(s=>s.participant.number===winner.number),target=normalizeAngle(-(seg?seg.mid:0)),cur=normalizeAngle(wheel.rotation),delta=normalizeAngle(target-cur)+720+Math.floor(Math.random()*2)*360,start=wheel.rotation,end=wheel.rotation+delta,duration=2800,st=performance.now();
- function step(now){const t=Math.min((now-st)/duration,1),e=easeOutCubic(t);wheel.rotation=start+(end-start)*e;wheelApplyRotation();wheelCheckTick();if(t<1)wheel.raf=requestAnimationFrame(step);else{wheel.rotation=end;wheelApplyRotation();document.getElementById("wheelFrame").classList.remove("spinning");showWinner("wheel",winner)}}
- wheel.raf=requestAnimationFrame(step);
-}
-function wheelPickOne(){const used=new Set(wheel.winners.map(w=>w.number));return weightedPick(wheel.active.filter(p=>!used.has(p.number)))}
-function wheelSectorIndex(){const a=normalizeAngle(-wheel.rotation);for(const s of wheel.segments){if(a>=s.start&&a<s.end)return s.index}return wheel.segments.length-1}
-function wheelCheckTick(){const idx=wheelSectorIndex();if(idx!==wheel.lastSector){triggerPointerTick();playTickSound(wheel);wheel.lastSector=idx}}
-function wheelApplyRotation(){const el=document.getElementById("wheelSpin");if(el)el.style.transform=`rotate(${wheel.rotation}deg)`}
-function triggerPointerTick(){const p=document.getElementById("wheelPointer");if(!p)return;p.classList.remove("tick");void p.offsetWidth;p.classList.add("tick")}
-
-/* ================= 扭蛋機：獨立資料 ================= */
-const gacha={total:60,participants:[],active:[],records:[],prizes:defaultPrizes(),drawTotal:0,drawIndex:0,winners:[],prizeId:null,isDrawing:false,audio:null};
-function openGachaHome(){activeTool="gacha";renderGachaSetupHTML();renderGachaPrizes();gachaGenerateList(false);showOnly("gachaSetupPage","NM4DJ專屬扭蛋機")}
-function renderGachaSetupHTML(){
-document.getElementById("gachaSetupPage").innerHTML=`
-<div class="panel"><div class="row" style="justify-content:space-between"><h2>扭蛋機｜獎項設定</h2><button class="gray" onclick="backHome()">回工具首頁</button></div><p class="small">此設定只屬於扭蛋機，不會影響幸運轉盤。</p>
-<div class="row"><button class="orange" onclick="gachaAddPrize()">新增獎項</button><button class="gray" onclick="gachaResetPrizes()">恢復預設獎項</button><button class="red" onclick="gachaClearPrizeRecords()">清空獎項已抽紀錄</button></div>
-<table class="prize-table"><thead><tr><th style="width:45%">獎項名稱</th><th style="width:20%">名額</th><th style="width:20%">已抽</th><th style="width:15%">操作</th></tr></thead><tbody id="gachaPrizeBody"></tbody></table></div>
-<div class="panel"><h2>扭蛋機｜名單設定</h2><p class="small">沒有輸入名稱時，使用號碼代表；沒有輸入權重時，權重為 1。</p>
-<div class="row"><span>名單數量：</span><input id="gachaTotalInput" type="number" value="${gacha.total}" min="1" style="width:120px"><button class="orange" onclick="gachaGenerateList(true)">重新生成名單</button></div><hr>
-<div class="row"><span>快速勾選：</span><input id="gachaRangeStart" type="number" value="1" min="1" style="width:100px"><span>到</span><input id="gachaRangeEnd" type="number" value="${gacha.total}" min="1" style="width:100px"><button onclick="gachaSelectRange()">套用範圍</button><button class="gray" onclick="gachaSelectAll()">全選</button><button class="gray" onclick="gachaUnselectAll()">全取消</button></div>
-<div class="row" style="margin-top:12px"><button class="gray" onclick="gachaClearNames()">清空名稱</button><button class="gray" onclick="gachaClearWeights()">權重重設為 1</button><button class="purple" onclick="gachaBuild()">生成扭蛋機</button></div><div id="gachaListGrid" class="list-grid"></div></div>`;
-}
-function gachaRenderList(){const box=document.getElementById("gachaListGrid");if(!box)return;box.innerHTML="";gacha.participants.forEach(p=>{const div=document.createElement("div");div.className="item"+(p.checked?" checked":"");div.id=`gachaItem_${p.number}`;div.innerHTML=`<div class="item-top"><input type="checkbox" id="gachaCheck_${p.number}" ${p.checked?"checked":""} onchange="gachaSyncItem(${p.number})"><strong>No.${p.number}</strong></div><label>名稱</label><input type="text" id="gachaName_${p.number}" value="${escapeAttr(p.name)}" placeholder="未填則使用 ${p.number}" oninput="gachaSyncItem(${p.number})"><label>權重</label><input type="number" id="gachaWeight_${p.number}" value="${escapeAttr(p.weight)}" min="0" placeholder="1" oninput="gachaSyncItem(${p.number})">`;box.appendChild(div)})}
-function gachaGenerateList(confirmAsk){const inp=document.getElementById("gachaTotalInput"),n=Number(inp?inp.value:gacha.total);if(!n||n<1)return alert("名單數量至少要 1");if(confirmAsk&&gacha.participants.length>0&&!confirm("重新生成會清空目前名稱與權重，確定嗎？"))return;gacha.total=n;gacha.participants=[];for(let i=1;i<=n;i++)gacha.participants.push({number:i,checked:true,name:"",weight:""});const e=document.getElementById("gachaRangeEnd");if(e)e.value=n;gachaRenderList()}
-function gachaSaveInputs(){gacha.participants.forEach(p=>{const n=document.getElementById(`gachaName_${p.number}`),w=document.getElementById(`gachaWeight_${p.number}`),c=document.getElementById(`gachaCheck_${p.number}`);if(n)p.name=n.value;if(w)p.weight=w.value;if(c)p.checked=c.checked})}
-function gachaSyncItem(num){const p=gacha.participants.find(x=>x.number===num);p.checked=document.getElementById(`gachaCheck_${num}`).checked;p.name=document.getElementById(`gachaName_${num}`).value;p.weight=document.getElementById(`gachaWeight_${num}`).value;document.getElementById(`gachaItem_${num}`).classList.toggle("checked",p.checked)}
-function gachaSelectRange(){gachaSaveInputs();const s=Number(document.getElementById("gachaRangeStart").value),e=Number(document.getElementById("gachaRangeEnd").value);if(!s||!e||s>e)return alert("請輸入正確範圍");gacha.participants.forEach(p=>p.checked=p.number>=s&&p.number<=e);gachaRenderList()}
-function gachaSelectAll(){gachaSaveInputs();gacha.participants.forEach(p=>p.checked=true);gachaRenderList()}
-function gachaUnselectAll(){gachaSaveInputs();gacha.participants.forEach(p=>p.checked=false);gachaRenderList()}
-function gachaClearNames(){if(!confirm("確定清空全部名稱？"))return;gachaSaveInputs();gacha.participants.forEach(p=>p.name="");gachaRenderList()}
-function gachaClearWeights(){if(!confirm("確定將全部權重重設為 1？"))return;gachaSaveInputs();gacha.participants.forEach(p=>p.weight="");gachaRenderList()}
-function gachaSelected(){gachaSaveInputs();return gacha.participants.filter(p=>p.checked).map(p=>({number:p.number,name:p.name.trim()||String(p.number),weight:Number(p.weight)>0?Number(p.weight):1}))}
-function renderGachaPrizes(){const body=document.getElementById("gachaPrizeBody");if(!body)return;body.innerHTML="";gacha.prizes.forEach(p=>{const tr=document.createElement("tr");tr.innerHTML=`<td><input value="${escapeAttr(p.name)}" oninput="gachaUpdatePrizeName('${p.id}',this.value)"></td><td><input type="number" min="1" value="${p.quota}" oninput="gachaUpdatePrizeQuota('${p.id}',this.value)"></td><td>${p.drawn} / ${p.quota}</td><td><button class="red" onclick="gachaDeletePrize('${p.id}')">刪除</button></td>`;body.appendChild(tr)})}
-function gachaUpdatePrizeName(id,v){const p=gacha.prizes.find(x=>x.id===id);if(p)p.name=v.trim()||"未命名獎項"}
-function gachaUpdatePrizeQuota(id,v){const p=gacha.prizes.find(x=>x.id===id);if(!p)return;p.quota=Number(v)>0?Number(v):1;if(p.drawn>p.quota)p.drawn=p.quota;renderGachaPrizes()}
-function gachaAddPrize(){gacha.prizes.push({id:makeId(),name:`獎項 ${gacha.prizes.length+1}`,quota:1,drawn:0});renderGachaPrizes()}
-function gachaDeletePrize(id){if(gacha.prizes.length<=1)return alert("至少需要保留一個獎項。");if(confirm("確定刪除此獎項？")){gacha.prizes=gacha.prizes.filter(p=>p.id!==id);renderGachaPrizes()}}
-function gachaResetPrizes(){if(confirm("確定恢復預設獎項？")){gacha.prizes=defaultPrizes();renderGachaPrizes()}}
-function gachaClearPrizeRecords(){if(confirm("確定清空所有獎項已抽數量？")){gacha.prizes.forEach(p=>p.drawn=0);renderGachaPrizes();gachaRenderPrizeSelect();gachaUpdatePrizeSummary()}}
-function gachaBuild(){gacha.active=gachaSelected();if(!gacha.active.length)return alert("請至少勾選一個號碼");renderGachaPageHTML();showOnly("gachaPage","NM4DJ專屬扭蛋機");gachaRenderPrizeSelect()}
-function renderGachaPageHTML(){
-document.getElementById("gachaPage").innerHTML=`
-<div class="panel"><div class="row" style="justify-content:center"><span>目前獎項：</span><select id="gachaPrizeSelect" onchange="gachaChangePrize()" style="min-width:220px"></select><span>抽取數量：</span><input id="gachaDrawCount" type="number" value="1" min="1" style="width:110px"><label><input id="gachaNoRepeat" type="checkbox"> 不重複中獎</label></div><div id="gachaPrizeSummary" style="text-align:center;margin-top:10px"></div><div class="row" style="justify-content:center;margin-top:10px"><button id="gachaDrawBtn" onclick="gachaStartDraw()">開始扭蛋</button><button class="red" onclick="gachaClearRecords()">清除抽獎紀錄</button><button class="blue" onclick="openGachaHome()">關閉扭蛋機</button></div></div>
-<div class="main-gacha"><div class="gacha-area"><div id="gachaMachine" class="gacha-machine"><div class="gacha-top" id="gachaBalls"></div><div class="gacha-base"><div class="gacha-window">NM4DJ</div><div class="gacha-handle"></div><div class="gacha-slot"></div></div><div id="gachaDrop" class="gacha-drop"></div></div></div>
-<div class="result-box"><div class="small">本次抽獎結果</div><div id="gachaResultTitle" class="big-result">尚未抽獎</div><p id="gachaResultSub">請選擇獎項後開始扭蛋</p><div id="gachaCurrentResult" class="record">尚無本次結果</div><h3>抽獎紀錄</h3><div id="gachaRecords" class="record">尚無紀錄</div></div></div>`;
-gachaRenderBalls();gachaRenderRecords();
-}
-function gachaRenderBalls(){const b=document.getElementById("gachaBalls");if(!b)return;b.innerHTML="";const cs=["#f87171","#fbbf24","#34d399","#60a5fa","#c084fc","#f472b6","#fb923c","#a3e635"];for(let i=0;i<18;i++){const d=document.createElement("div");d.className="gacha-ball";d.style.background=`linear-gradient(135deg,${cs[i%cs.length]},#fff)`;d.style.left=(35+Math.random()*230)+"px";d.style.top=(55+Math.random()*190)+"px";b.appendChild(d)}}
-function gachaRenderPrizeSelect(){const s=document.getElementById("gachaPrizeSelect");if(!s)return;s.innerHTML="";gacha.prizes.forEach(p=>{const r=Math.max(p.quota-p.drawn,0),o=document.createElement("option");o.value=p.id;o.textContent=`${p.name}｜剩餘 ${r} / ${p.quota}`;o.disabled=r<=0;s.appendChild(o)});const f=gacha.prizes.find(p=>p.quota-p.drawn>0);if(f)s.value=f.id;gachaChangePrize()}
-function gachaPrize(){const id=document.getElementById("gachaPrizeSelect").value;return gacha.prizes.find(p=>p.id===id)}
-function gachaChangePrize(){const p=gachaPrize();if(!p)return;document.getElementById("gachaDrawCount").value=Math.max(p.quota-p.drawn,0)||1;gachaUpdatePrizeSummary()}
-function gachaUpdatePrizeSummary(){const b=document.getElementById("gachaPrizeSummary");if(!b)return;b.innerHTML=gacha.prizes.map(p=>`<span class="prize-badge">🥚 ${escapeHtml(p.name)}｜已抽 ${p.drawn} / ${p.quota}｜剩餘 ${Math.max(p.quota-p.drawn,0)}</span>`).join("")}
-function gachaStartDraw(){
- if(gacha.isDrawing)return;unlockAudio(gacha);const p=gachaPrize();if(!p)return alert("請選擇獎項。");const remain=p.quota-p.drawn,count=Number(document.getElementById("gachaDrawCount").value);
- if(remain<=0)return alert("此獎項已抽完，請選擇其他獎項。");if(!count||count<1)return alert("抽取數量至少為 1");if(count>remain)return alert(`此獎項剩餘名額只有 ${remain} 位。`);if(count>gacha.active.length)return alert("抽取數量不可大於目前人數");
- if(!confirm(`請確認本次扭蛋資訊：\n\n目前獎項：${p.name}\n抽取數量：${count}\n參與人數：${gacha.active.length}\n\n是否開始扭蛋？`))return;
- gacha.prizeId=p.id;gacha.drawTotal=count;gacha.drawIndex=0;gacha.winners=[];gacha.isDrawing=true;document.getElementById("gachaDrawBtn").disabled=true;document.getElementById("gachaCurrentResult").textContent="扭蛋中...";gachaNextOne();
-}
-function gachaNextOne(){
- const used=new Set(gacha.winners.map(w=>w.number));const winner=weightedPick(gacha.active.filter(p=>!used.has(p.number)));gacha.winners.push(winner);
- const m=document.getElementById("gachaMachine"),drop=document.getElementById("gachaDrop");document.getElementById("gachaResultTitle").textContent="扭蛋中...";document.getElementById("gachaResultSub").textContent=`第 ${gacha.drawIndex+1} 顆扭蛋中`;
- m.classList.add("shake");drop.classList.remove("drop");void drop.offsetWidth;playGachaSound(gacha);
- setTimeout(()=>{drop.classList.add("drop")},900);
- setTimeout(()=>{m.classList.remove("shake");showWinner("gacha",winner)},2100);
-}
-function showWinner(tool,winner){
- const data=tool==="wheel"?wheel:gacha;
- const p=data.prizes.find(x=>x.id===data.prizeId),now=new Date().toLocaleString("zh-TW",{hour12:false});
- document.getElementById("winnerPrize").textContent=p?`${tool==="wheel"?"🎁":"🥚"} ${p.name}`:"";
- document.getElementById("winnerName").textContent=data.drawTotal===1?`第 1 位：${winner.name}`:`第 ${data.drawIndex+1} 位：${winner.name}`;
- document.getElementById("winnerTime").textContent=`抽獎時間：${now}`;
- document.getElementById("winnerBtn").textContent=data.drawIndex<data.drawTotal-1?"下一位":"確認";
- document.getElementById("winnerMask").dataset.tool=tool;
- document.getElementById("winnerMask").classList.remove("hidden");
-}
-function winnerModalNext(){
- const tool=document.getElementById("winnerMask").dataset.tool;
- document.getElementById("winnerMask").classList.add("hidden");
- if(tool==="wheel"){wheel.drawIndex++;if(wheel.drawIndex<wheel.drawTotal){wheelStartFreeSpin();return}wheelFinish()}
- if(tool==="gacha"){gacha.drawIndex++;if(gacha.drawIndex<gacha.drawTotal){gachaNextOne();return}gachaFinish()}
-}
-function gachaFinish(){
- const noRepeat=document.getElementById("gachaNoRepeat").checked,p=gacha.prizes.find(x=>x.id===gacha.prizeId),name=p?p.name:"未命名獎項",text=gacha.winners.map((w,i)=>`第 ${i+1} 位：${w.name}（${w.number}號）`).join("\n"),time=new Date().toLocaleString("zh-TW",{hour12:false}),code=makeVerifyCode(`${time}|${name}|${JSON.stringify(gacha.winners)}|${gacha.active.length}`);
- document.getElementById("gachaResultTitle").textContent="恭喜中獎";document.getElementById("gachaResultSub").textContent=`${name}｜本次抽出 ${gacha.winners.length} 位`;document.getElementById("gachaCurrentResult").textContent=text;gacha.records.unshift(`${time}\n【${name}】\n${text}\n公平性驗證碼：${code}`);gachaRenderRecords();
- if(p){p.drawn+=gacha.winners.length;if(p.drawn>p.quota)p.drawn=p.quota}
- if(noRepeat){const set=new Set(gacha.winners.map(x=>x.number));gacha.active=gacha.active.filter(x=>!set.has(x.number));gacha.participants.forEach(p=>{if(set.has(p.number))p.checked=false})}
- gachaRenderPrizeSelect();gachaUpdatePrizeSummary();renderGachaPrizes();gacha.isDrawing=false;document.getElementById("gachaDrawBtn").disabled=false;
-}
-function gachaRenderRecords(){const r=document.getElementById("gachaRecords");if(r)r.textContent=gacha.records.length?gacha.records.map((x,i)=>`${i+1}. ${x}`).join("\n\n"):"尚無紀錄"}
-function gachaClearRecords(){if(confirm("確定清除抽獎紀錄？")){gacha.records=[];gachaRenderRecords()}}
-
-function wheelFinish(){
- const noRepeat=document.getElementById("wheelNoRepeat").checked,p=wheel.prizes.find(x=>x.id===wheel.prizeId),name=p?p.name:"未命名獎項",text=wheel.winners.map((w,i)=>`第 ${i+1} 位：${w.name}（${w.number}號）`).join("\n"),time=new Date().toLocaleString("zh-TW",{hour12:false}),code=makeVerifyCode(`${time}|${name}|${JSON.stringify(wheel.winners)}|${wheel.active.length}`);
- document.getElementById("wheelResultTitle").textContent="恭喜中獎";document.getElementById("wheelResultSub").textContent=`${name}｜本次抽出 ${wheel.winners.length} 位`;document.getElementById("wheelCurrentResult").textContent=text;wheel.records.unshift(`${time}\n【${name}】\n${text}\n公平性驗證碼：${code}`);wheelRenderRecords();
- if(p){p.drawn+=wheel.winners.length;if(p.drawn>p.quota)p.drawn=p.quota}
- if(noRepeat){const set=new Set(wheel.winners.map(x=>x.number));wheel.active=wheel.active.filter(x=>!set.has(x.number));wheel.participants.forEach(p=>{if(set.has(p.number))p.checked=false});if(wheel.active.length)wheelRenderWheel()}
- wheelRenderPrizeSelect();wheelUpdatePrizeSummary();renderWheelPrizes();wheel.isDrawing=false;wheel.isFree=false;document.getElementById("wheelDrawBtn").textContent="開始抽獎";document.getElementById("wheelDrawBtn").classList.remove("red");
-}
-function wheelRenderRecords(){const r=document.getElementById("wheelRecords");if(r)r.textContent=wheel.records.length?wheel.records.map((x,i)=>`${i+1}. ${x}`).join("\n\n"):"尚無紀錄"}
-function wheelClearRecords(){if(confirm("確定清除抽獎紀錄？")){wheel.records=[];wheelRenderRecords()}}
-
-function unlockAudio(data){try{if(!data.audio)data.audio=new(window.AudioContext||window.webkitAudioContext)();if(data.audio.state==="suspended")data.audio.resume()}catch(e){}}
-function playTickSound(data){try{unlockAudio(data);const osc=data.audio.createOscillator(),gain=data.audio.createGain();osc.type="square";osc.frequency.setValueAtTime(950,data.audio.currentTime);gain.gain.setValueAtTime(.035,data.audio.currentTime);gain.gain.exponentialRampToValueAtTime(.001,data.audio.currentTime+.035);osc.connect(gain);gain.connect(data.audio.destination);osc.start();osc.stop(data.audio.currentTime+.04)}catch(e){}}
-function playGachaSound(data){try{unlockAudio(data);let t=data.audio.currentTime;for(let i=0;i<9;i++){const osc=data.audio.createOscillator(),gain=data.audio.createGain();osc.type="square";osc.frequency.setValueAtTime(240+Math.random()*260,t+i*.11);gain.gain.setValueAtTime(.035,t+i*.11);gain.gain.exponentialRampToValueAtTime(.001,t+i*.11+.05);osc.connect(gain);gain.connect(data.audio.destination);osc.start(t+i*.11);osc.stop(t+i*.11+.06)}}catch(e){}}
-
-prizes=defaultPrizes();
-wheel.participants=[];for(let i=1;i<=60;i++)wheel.participants.push({number:i,checked:true,name:"",weight:""});
-gacha.participants=[];for(let i=1;i<=60;i++)gacha.participants.push({number:i,checked:true,name:"",weight:""});
-</script>
+<script src="common.js"></script>
+<script>initLogin();</script>
 </body>
 </html>

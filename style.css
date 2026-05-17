@@ -1,0 +1,96 @@
+*{box-sizing:border-box}
+body{margin:0;font-family:"Microsoft JhengHei",Arial,sans-serif;background:#fffdf6;color:#3b2a1a;overflow-x:hidden}
+.hidden{display:none!important}
+header{text-align:center;padding:20px 12px 8px}
+h1{margin:0;color:#8b4513;display:flex;align-items:center;justify-content:center;gap:14px;flex-wrap:nowrap;font-size:48px;line-height:1.15;text-align:center}
+h1 .mushroom{flex-shrink:0}
+h1 .title-text{white-space:nowrap}
+.container{max-width:1250px;margin:auto;padding:16px}
+.panel{background:#fff8ec;border:4px solid #9b642f;border-radius:26px;padding:22px;margin-bottom:16px;box-shadow:0 8px 18px rgba(0,0,0,.08)}
+.row{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
+input,button,select{border-radius:14px;padding:10px 14px;border:3px solid #f6b26b;font-size:16px}
+button{cursor:pointer;font-weight:bold;background:#31c26b;color:#073b1c;border:4px solid #8b5a2b;box-shadow:0 5px 0 #7a4a20}
+button.red{background:#ef4444;color:white}
+button.blue{background:#60a5fa;color:white}
+button.gray{background:#e5e7eb;color:#333}
+button.orange{background:#fbbf24;color:#4a2a00}
+button.purple{background:#c084fc;color:#3b0764}
+button:active{transform:translateY(3px);box-shadow:0 1px 0 #7a4a20}
+button:disabled{opacity:.55;cursor:not-allowed}
+.small{font-size:14px;color:#7c5a35}
+.tool-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:18px;margin-top:18px}
+.tool-card{background:white;border:4px solid #9b642f;border-radius:24px;padding:24px;cursor:pointer;transition:.18s;box-shadow:0 8px 16px rgba(0,0,0,.08);text-decoration:none;color:inherit;display:block}
+.tool-card:hover{transform:translateY(-4px);box-shadow:0 14px 26px rgba(0,0,0,.15)}
+.tool-card h2{margin:0 0 10px;color:#8b4513;font-size:30px}
+.tool-card p{color:#7c5a35;line-height:1.7}
+.tool-card.disabled{opacity:.55;cursor:not-allowed}
+.prize-table{width:100%;border-collapse:collapse;margin-top:12px;background:white;border-radius:14px;overflow:hidden}
+.prize-table th,.prize-table td{border-bottom:1px solid #e6c7a3;padding:10px;text-align:left}
+.prize-table th{background:#ffe7b7}.prize-table input{width:100%}
+.prize-badge{display:inline-block;background:#fff1c7;border:2px solid #9b642f;border-radius:999px;padding:6px 12px;margin:4px;font-weight:bold}
+.list-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(170px,1fr));gap:10px;margin-top:14px}
+.item{background:white;border:2px solid #e6c7a3;border-radius:14px;padding:10px}
+.item.checked{background:#fff1c7;border-color:#9b642f}
+.item-top{display:flex;align-items:center;gap:8px;margin-bottom:8px}
+.item input[type="text"],.item input[type="number"]{width:100%;margin-top:4px}
+.item label{font-size:13px;color:#6b4b2b}
+.result-box{background:#fff8ec;border:4px solid #9b642f;border-radius:18px;padding:20px;text-align:center}
+.big-result{color:#dc2626;font-size:34px;font-weight:bold;line-height:1.6}
+.record{background:white;border:2px dashed #f6b26b;border-radius:12px;padding:12px;min-height:80px;max-height:260px;overflow:auto;text-align:left;white-space:pre-wrap;line-height:1.6}
+.lock,.winner-mask{position:fixed;inset:0;background:rgba(0,0,0,.45);display:flex;justify-content:center;align-items:center;z-index:99;padding:20px}
+.lock{background:rgba(255,253,246,.97)}
+.lock-box{width:min(760px,95%);text-align:center}
+.lock-box p{text-align:center;font-size:34px;margin:24px 0}
+#passwordInput{width:100%;text-align:center;font-size:34px;height:82px}
+.login-btn{min-width:220px;height:86px;font-size:40px;margin-top:24px}
+.winner-box{width:min(760px,95%);background:#fff8ec;border:6px solid #9b642f;border-radius:26px;text-align:center;padding:34px 22px;box-shadow:0 20px 60px rgba(0,0,0,.35)}
+.winner-title{font-size:40px;color:#dc2626;font-weight:bold;margin-bottom:20px}
+.winner-prize{font-size:28px;color:#92400e;font-weight:bold;margin-bottom:12px}
+.winner-name{font-size:38px;color:#7e22ce;font-weight:bold;line-height:1.5;margin-bottom:18px}
+.winner-time{font-size:20px;color:#374151;margin-bottom:20px}
+
+/* Wheel */
+.main-wheel,.main-gacha{display:grid;grid-template-columns:1fr 360px;gap:24px;align-items:center}
+.wheel-area{text-align:center;min-height:660px;display:flex;flex-direction:column;align-items:center;justify-content:center}
+.pointer-wrap{height:72px;display:flex;align-items:flex-end;justify-content:center;margin-bottom:-22px;z-index:20}
+.pointer{width:52px;height:76px;position:relative;transform-origin:50% 10%;z-index:20}
+.pointer::before{content:"";position:absolute;left:50%;top:0;transform:translateX(-50%);width:36px;height:56px;background:linear-gradient(180deg,#ef4444,#991b1b);clip-path:polygon(50% 100%,0 0,100% 0);border:3px solid #7f1d1d;filter:drop-shadow(0 4px 4px rgba(0,0,0,.35))}
+.pointer::after{content:"";position:absolute;left:50%;top:-8px;transform:translateX(-50%);width:28px;height:28px;border-radius:50%;background:radial-gradient(circle,#fff7ad,#fbbf24 55%,#92400e);border:3px solid #7c2d12}
+.pointer.tick{animation:pointerTick .08s ease-out}
+@keyframes pointerTick{0%{transform:rotate(0)}40%{transform:rotate(-13deg)}100%{transform:rotate(0)}}
+.wheel-frame{width:580px;height:580px;max-width:90vw;max-height:90vw;border-radius:50%;padding:18px;position:relative;background:radial-gradient(circle at 35% 25%,rgba(255,255,255,.9),rgba(255,255,255,0) 18%),linear-gradient(135deg,#fff2a6,#d97706 40%,#7c2d12 65%,#fbbf24);border:8px solid #7c2d12;box-shadow:inset 0 0 0 8px #facc15,inset 0 0 0 16px #92400e,0 18px 36px rgba(0,0,0,.28)}
+.wheel-frame.spinning{animation:wheelGlow .55s linear infinite alternate}
+@keyframes wheelGlow{from{box-shadow:inset 0 0 0 8px #facc15,inset 0 0 0 16px #92400e,0 18px 36px rgba(0,0,0,.28),0 0 16px rgba(250,204,21,.3)}to{box-shadow:inset 0 0 0 8px #fde68a,inset 0 0 0 16px #92400e,0 18px 36px rgba(0,0,0,.28),0 0 38px rgba(250,204,21,.72)}}
+.wheel-clip{width:100%;height:100%;border-radius:50%;overflow:hidden;position:relative;background:white;border:5px solid #6b3f14}
+.wheel-spin{width:100%;height:100%;border-radius:50%;position:relative;will-change:transform;transform:rotate(0deg)}
+.wheel-shine{position:absolute;inset:0;border-radius:50%;pointer-events:none;background:radial-gradient(circle at 34% 25%,rgba(255,255,255,.55),rgba(255,255,255,0) 24%),radial-gradient(circle at 50% 50%,rgba(255,255,255,0) 45%,rgba(0,0,0,.12) 100%);z-index:4}
+.wheel-center{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);width:136px;height:136px;border-radius:50%;background:radial-gradient(circle at 35% 25%,#fff8c5,#facc15 45%,#b45309 82%);border:8px solid #7c2d12;display:flex;align-items:center;justify-content:center;font-weight:900;font-size:26px;color:#5b3415;text-shadow:0 1px 0 rgba(255,255,255,.65);z-index:10;box-shadow:inset 0 5px 9px rgba(255,255,255,.6),inset 0 -8px 12px rgba(120,53,15,.35),0 8px 14px rgba(0,0,0,.28)}
+.label{position:absolute;left:50%;top:50%;width:130px;height:32px;margin-left:-65px;margin-top:-16px;display:flex;align-items:center;justify-content:center;text-align:center;font-size:15px;font-weight:bold;color:#5b3415;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;transform-origin:center center;pointer-events:none;z-index:3}
+.peg{position:absolute;left:50%;top:50%;width:12px;height:28px;margin-left:-6px;margin-top:-14px;border-radius:8px;background:linear-gradient(90deg,#92400e,#fef3c7,#f59e0b,#78350f);border:2px solid #78350f;box-shadow:0 2px 4px rgba(0,0,0,.28);transform-origin:center center;z-index:6}
+
+/* Gacha */
+.gacha-area{min-height:650px;display:flex;align-items:center;justify-content:center;flex-direction:column}
+.gacha-machine{width:430px;max-width:90vw;height:560px;position:relative}
+.gacha-top{position:absolute;left:50%;top:0;transform:translateX(-50%);width:340px;height:320px;border-radius:50% 50% 42% 42%;background:radial-gradient(circle at 35% 25%,rgba(255,255,255,.75),rgba(255,255,255,.1) 28%,rgba(239,68,68,.45) 70%),rgba(239,68,68,.35);border:10px solid #991b1b;overflow:hidden;box-shadow:inset 0 0 25px rgba(255,255,255,.55),0 14px 24px rgba(0,0,0,.2)}
+.gacha-ball{position:absolute;width:56px;height:56px;border-radius:50%;border:4px solid rgba(0,0,0,.15);box-shadow:inset -8px -8px 10px rgba(0,0,0,.12),inset 6px 6px 10px rgba(255,255,255,.55)}
+.gacha-base{position:absolute;left:50%;bottom:20px;transform:translateX(-50%);width:360px;height:250px;border-radius:30px;background:linear-gradient(180deg,#facc15,#d97706 60%,#92400e);border:10px solid #7c2d12;box-shadow:inset 0 8px 10px rgba(255,255,255,.35),0 14px 24px rgba(0,0,0,.22)}
+.gacha-window{position:absolute;left:50%;top:62px;transform:translateX(-50%);width:190px;height:70px;border-radius:16px;background:#fff8ec;border:6px solid #7c2d12;display:flex;align-items:center;justify-content:center;font-size:26px;font-weight:900;color:#8b4513}
+.gacha-handle{position:absolute;right:48px;top:105px;width:76px;height:76px;border-radius:50%;background:radial-gradient(circle,#fef3c7,#f59e0b 58%,#92400e);border:7px solid #7c2d12;box-shadow:0 6px 10px rgba(0,0,0,.25)}
+.gacha-handle::after{content:"";position:absolute;left:50%;top:50%;width:20px;height:72px;background:#7c2d12;border-radius:12px;transform:translate(-50%,-50%) rotate(35deg)}
+.gacha-slot{position:absolute;left:50%;bottom:36px;transform:translateX(-50%);width:120px;height:54px;border-radius:0 0 40px 40px;background:#3b2a1a;border:5px solid #7c2d12}
+.gacha-drop{position:absolute;left:50%;bottom:100px;transform:translateX(-50%);width:72px;height:72px;border-radius:50%;background:linear-gradient(135deg,#fef08a,#f97316);border:5px solid #92400e;opacity:0;z-index:5}
+.gacha-machine.shake{animation:gachaShake .55s linear infinite}
+.gacha-machine.shake .gacha-handle{animation:handleSpin .55s linear infinite}
+.gacha-drop.drop{animation:ballDrop 1.05s ease-out forwards}
+@keyframes gachaShake{0%,100%{transform:translateX(0)}25%{transform:translateX(-7px) rotate(-1deg)}50%{transform:translateX(7px) rotate(1deg)}75%{transform:translateX(-4px) rotate(-.5deg)}}
+@keyframes handleSpin{from{transform:rotate(0)}to{transform:rotate(360deg)}}
+@keyframes ballDrop{0%{opacity:0;bottom:230px;transform:translateX(-50%) scale(.5)}30%{opacity:1}70%{bottom:70px;transform:translateX(-50%) scale(1.05)}100%{opacity:1;bottom:38px;transform:translateX(-50%) scale(1)}}
+@media(max-width:900px){
+ h1{font-size:32px;gap:8px} h1 .title-text{white-space:normal}
+ .main-wheel,.main-gacha{grid-template-columns:1fr}
+ .wheel-area{min-height:460px}.wheel-frame{width:380px;height:380px;padding:12px}.wheel-center{width:96px;height:96px;font-size:20px;border-width:6px}
+ .label{width:90px;margin-left:-45px;font-size:11px}.peg{width:8px;height:20px;margin-left:-4px;margin-top:-10px}
+ .gacha-machine{width:360px;height:500px}.gacha-top{width:300px;height:285px}.gacha-base{width:310px;height:225px}
+ .winner-title{font-size:30px}.winner-prize{font-size:22px}.winner-name{font-size:28px}.lock-box p{font-size:24px}
+ #passwordInput{font-size:26px;height:70px}.login-btn{font-size:32px;height:76px}
+}
