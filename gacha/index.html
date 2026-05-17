@@ -343,13 +343,19 @@ function renderBalls(){
   if(!b)return;
   b.innerHTML="";
   const cs=["#f87171","#fbbf24","#34d399","#60a5fa","#c084fc","#f472b6","#fb923c","#a3e635"];
-  for(let i=0;i<20;i++){
+  for(let i=0;i<34;i++){
     const d=document.createElement("div");
     d.className="gacha-ball";
     d.style.background=`linear-gradient(135deg,${cs[i%cs.length]},#fff)`;
-    d.style.left=(32+Math.random()*235)+"px";
-    d.style.top=(48+Math.random()*198)+"px";
-    d.style.animationDelay=(Math.random()*0.35)+"s";
+
+    const angle=Math.random()*Math.PI*2;
+    const radius=Math.sqrt(Math.random())*165;
+    const x=235 + Math.cos(angle)*radius - 31;
+    const y=205 + Math.sin(angle)*Math.min(radius,145) - 31;
+
+    d.style.left=Math.max(24,Math.min(382,x))+"px";
+    d.style.top=Math.max(42,Math.min(322,y))+"px";
+    d.style.animationDelay=(Math.random()*0.5)+"s";
     b.appendChild(d);
   }
 }
@@ -372,7 +378,7 @@ function mixBalls(){
     stopMixBalls();
     document.getElementById("resultTitle").textContent="尚未抽獎";
     document.getElementById("resultSub").textContent="請選擇獎項後開始扭蛋";
-  },2600);
+  },3600);
 }
 
 function stopMixBalls(){
@@ -434,23 +440,27 @@ function nextOne(){
   playGachaSound(state);
 
   setTimeout(()=>{
+    playGachaSound(state);
+  },650);
+
+  setTimeout(()=>{
     m.classList.remove("mixing");
     m.classList.add("shake");
-  },900);
+  },1350);
 
   setTimeout(()=>{
     drop.classList.add("drop");
-  },1200);
+  },1650);
 
   setTimeout(()=>{
     m.classList.remove("shake");
     drop.classList.add("opening");
     flash.classList.add("burst");
-  },2350);
+  },2950);
 
   setTimeout(()=>{
     showWinner(winner);
-  },3250);
+  },3900);
 }
 
 function showWinner(winner){
