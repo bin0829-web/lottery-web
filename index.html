@@ -167,35 +167,114 @@ button:disabled{
 
 .wheel-area{
   text-align:center;
-  min-height:620px;
+  min-height:660px;
   display:flex;
   flex-direction:column;
   align-items:center;
   justify-content:center;
 }
 
+.pointer-wrap{
+  height:72px;
+  display:flex;
+  align-items:flex-end;
+  justify-content:center;
+  margin-bottom:-22px;
+  z-index:20;
+}
+
 .pointer{
-  width:0;
-  height:0;
-  border-left:24px solid transparent;
-  border-right:24px solid transparent;
-  border-top:56px solid #ef4444;
-  margin:0 auto -18px;
+  width:52px;
+  height:76px;
   position:relative;
-  z-index:3;
+  transform-origin:50% 10%;
+  z-index:20;
+}
+
+.pointer::before{
+  content:"";
+  position:absolute;
+  left:50%;
+  top:0;
+  transform:translateX(-50%);
+  width:36px;
+  height:56px;
+  background:linear-gradient(180deg,#ef4444,#991b1b);
+  clip-path:polygon(50% 100%,0 0,100% 0);
+  border:3px solid #7f1d1d;
+  filter:drop-shadow(0 4px 4px rgba(0,0,0,.35));
+}
+
+.pointer::after{
+  content:"";
+  position:absolute;
+  left:50%;
+  top:-8px;
+  transform:translateX(-50%);
+  width:28px;
+  height:28px;
+  border-radius:50%;
+  background:radial-gradient(circle,#fff7ad,#fbbf24 55%,#92400e);
+  border:3px solid #7c2d12;
+}
+
+.pointer.tick{
+  animation:pointerTick .085s ease-out;
+}
+
+@keyframes pointerTick{
+  0%{transform:rotate(0deg)}
+  40%{transform:rotate(-13deg)}
+  100%{transform:rotate(0deg)}
 }
 
 .wheel-frame{
-  width:560px;
-  height:560px;
+  width:580px;
+  height:580px;
   max-width:90vw;
   max-height:90vw;
   border-radius:50%;
-  border:12px solid #9b642f;
+  padding:18px;
+  position:relative;
+  background:
+    radial-gradient(circle at 35% 25%,rgba(255,255,255,.9),rgba(255,255,255,0) 18%),
+    linear-gradient(135deg,#fff2a6,#d97706 40%,#7c2d12 65%,#fbbf24);
+  border:8px solid #7c2d12;
+  box-shadow:
+    inset 0 0 0 8px #facc15,
+    inset 0 0 0 16px #92400e,
+    0 18px 36px rgba(0,0,0,.28);
+}
+
+.wheel-frame.spinning{
+  animation:wheelGlow .55s linear infinite alternate;
+}
+
+@keyframes wheelGlow{
+  from{
+    box-shadow:
+      inset 0 0 0 8px #facc15,
+      inset 0 0 0 16px #92400e,
+      0 18px 36px rgba(0,0,0,.28),
+      0 0 16px rgba(250,204,21,.3);
+  }
+  to{
+    box-shadow:
+      inset 0 0 0 8px #fde68a,
+      inset 0 0 0 16px #92400e,
+      0 18px 36px rgba(0,0,0,.28),
+      0 0 38px rgba(250,204,21,.72);
+  }
+}
+
+.wheel-clip{
+  width:100%;
+  height:100%;
+  border-radius:50%;
   overflow:hidden;
   position:relative;
-  box-shadow:0 12px 28px rgba(0,0,0,.25);
   background:white;
+  border:5px solid #6b3f14;
 }
 
 .wheel-spin{
@@ -208,22 +287,40 @@ button:disabled{
   transform:rotate(0deg);
 }
 
+.wheel-shine{
+  position:absolute;
+  inset:0;
+  border-radius:50%;
+  pointer-events:none;
+  background:
+    radial-gradient(circle at 34% 25%,rgba(255,255,255,.55),rgba(255,255,255,0) 24%),
+    radial-gradient(circle at 50% 50%,rgba(255,255,255,0) 45%,rgba(0,0,0,.12) 100%);
+  z-index:4;
+}
+
 .wheel-center{
   position:absolute;
   left:50%;
   top:50%;
   transform:translate(-50%,-50%);
-  width:120px;
-  height:120px;
+  width:136px;
+  height:136px;
   border-radius:50%;
-  background:#ffc983;
-  border:8px solid #9b642f;
+  background:
+    radial-gradient(circle at 35% 25%,#fff8c5,#facc15 45%,#b45309 82%);
+  border:8px solid #7c2d12;
   display:flex;
   align-items:center;
   justify-content:center;
-  font-weight:bold;
-  font-size:22px;
-  z-index:5;
+  font-weight:900;
+  font-size:26px;
+  color:#5b3415;
+  text-shadow:0 1px 0 rgba(255,255,255,.65);
+  z-index:10;
+  box-shadow:
+    inset 0 5px 9px rgba(255,255,255,.6),
+    inset 0 -8px 12px rgba(120,53,15,.35),
+    0 8px 14px rgba(0,0,0,.28);
 }
 
 .label{
@@ -246,7 +343,23 @@ button:disabled{
   text-overflow:ellipsis;
   transform-origin:center center;
   pointer-events:none;
-  z-index:2;
+  z-index:3;
+}
+
+.peg{
+  position:absolute;
+  left:50%;
+  top:50%;
+  width:12px;
+  height:28px;
+  margin-left:-6px;
+  margin-top:-14px;
+  border-radius:8px;
+  background:linear-gradient(90deg,#92400e,#fef3c7,#f59e0b,#78350f);
+  border:2px solid #78350f;
+  box-shadow:0 2px 4px rgba(0,0,0,.28);
+  transform-origin:center center;
+  z-index:6;
 }
 
 .result-box{
@@ -374,18 +487,33 @@ button:disabled{
   }
 
   .wheel-area{
-    min-height:430px;
+    min-height:460px;
   }
 
   .wheel-frame{
-    width:360px;
-    height:360px;
+    width:380px;
+    height:380px;
+    padding:12px;
+  }
+
+  .wheel-center{
+    width:96px;
+    height:96px;
+    font-size:20px;
+    border-width:6px;
   }
 
   .label{
     width:90px;
     margin-left:-45px;
     font-size:11px;
+  }
+
+  .peg{
+    width:8px;
+    height:20px;
+    margin-left:-4px;
+    margin-top:-10px;
   }
 
   .winner-title{font-size:30px}
@@ -415,15 +543,10 @@ button:disabled{
       <span class="title-text">NM4DJ專屬幸運轉盤</span>
       <span class="mushroom">🍄</span>
     </h1>
-
     <p>請先輸入密碼</p>
-
     <input id="passwordInput" type="password" placeholder="請輸入密碼">
-
     <br>
-
     <button class="login-btn" onclick="login()">進入</button>
-
     <p id="passwordMsg" class="small"></p>
   </div>
 </div>
@@ -452,9 +575,7 @@ button:disabled{
 
   <div class="panel">
     <h2>獎項設定</h2>
-    <p class="small">
-      可設定多個獎項與名額。轉盤頁會選擇目前要抽的獎項，抽取數量會自動帶入剩餘名額。
-    </p>
+    <p class="small">可設定多個獎項與名額。轉盤頁會選擇目前要抽的獎項，抽取數量會自動帶入剩餘名額。</p>
 
     <div class="row">
       <button class="orange" onclick="addPrize()">新增獎項</button>
@@ -477,9 +598,7 @@ button:disabled{
 
   <div class="panel">
     <h2>抽獎名單設定</h2>
-    <p class="small">
-      預設 60 個號碼。沒有輸入名稱時，會使用號碼代表；沒有輸入權重時，權重自動為 1。
-    </p>
+    <p class="small">預設 60 個號碼。沒有輸入名稱時，會使用號碼代表；沒有輸入權重時，權重自動為 1。</p>
 
     <div class="row">
       <span>名單數量：</span>
@@ -537,10 +656,16 @@ button:disabled{
 
   <div class="main-wheel">
     <div class="wheel-area">
-      <div class="pointer"></div>
-      <div class="wheel-frame">
-        <div id="wheelSpin" class="wheel-spin">
-          <div class="wheel-center">LUCKY</div>
+      <div class="pointer-wrap">
+        <div id="pointer" class="pointer"></div>
+      </div>
+
+      <div id="wheelFrame" class="wheel-frame">
+        <div class="wheel-clip">
+          <div id="wheelSpin" class="wheel-spin">
+            <div class="wheel-shine"></div>
+            <div class="wheel-center">NM4DJ</div>
+          </div>
         </div>
       </div>
     </div>
@@ -574,6 +699,8 @@ let drawIndex = 0;
 let pendingWinners = [];
 let pendingPrizeId = null;
 let isDrawing = false;
+let tickTimer = null;
+let audioCtx = null;
 
 const colors = [
   "#fca5a5","#fdba74","#fde68a","#86efac",
@@ -615,18 +742,10 @@ function renderPrizes(){
     const tr = document.createElement("tr");
 
     tr.innerHTML = `
-      <td>
-        <input value="${escapeAttr(p.name)}" oninput="updatePrizeName('${p.id}',this.value)">
-      </td>
-      <td>
-        <input type="number" min="1" value="${p.quota}" oninput="updatePrizeQuota('${p.id}',this.value)">
-      </td>
-      <td>
-        ${p.drawn} / ${p.quota}
-      </td>
-      <td>
-        <button class="red" onclick="deletePrize('${p.id}')">刪除</button>
-      </td>
+      <td><input value="${escapeAttr(p.name)}" oninput="updatePrizeName('${p.id}',this.value)"></td>
+      <td><input type="number" min="1" value="${p.quota}" oninput="updatePrizeQuota('${p.id}',this.value)"></td>
+      <td>${p.drawn} / ${p.quota}</td>
+      <td><button class="red" onclick="deletePrize('${p.id}')">刪除</button></td>
     `;
 
     body.appendChild(tr);
@@ -904,13 +1023,16 @@ function buildWheel(){
   requestAnimationFrame(()=>{
     setTimeout(()=>{
       renderWheel(activeParticipants);
-    },100);
+    },120);
   });
 }
 
 function renderWheel(list){
   const wheel = document.getElementById("wheelSpin");
-  wheel.innerHTML = `<div class="wheel-center">LUCKY</div>`;
+  wheel.innerHTML = `
+    <div class="wheel-shine"></div>
+    <div class="wheel-center">NM4DJ</div>
+  `;
 
   const totalWeight = list.reduce((s,x)=>s+x.weight,0);
   const isSameWeight = list.every(x=>x.weight === list[0].weight);
@@ -920,7 +1042,9 @@ function renderWheel(list){
 
   const frame = document.querySelector(".wheel-frame");
   const wheelSize = frame.getBoundingClientRect().width || 560;
-  const labelDistance = wheelSize * 0.31;
+  const innerSize = wheelSize - 52;
+  const labelDistance = innerSize * 0.31;
+  const pegDistance = innerSize * 0.47;
 
   list.forEach((p,i)=>{
     const deg = p.weight / totalWeight * 360;
@@ -931,9 +1055,13 @@ function renderWheel(list){
 
     gradient.push(`${color} ${start}deg ${end}deg`);
 
+    const peg = document.createElement("div");
+    peg.className = "peg";
+    peg.style.transform = `rotate(${start}deg) translateY(-${pegDistance}px)`;
+    wheel.appendChild(peg);
+
     const label = document.createElement("div");
     label.className = "label";
-
     label.textContent = isSameWeight
       ? p.name
       : `${p.name} ${((p.weight/totalWeight)*100).toFixed(1)}%`;
@@ -950,6 +1078,8 @@ function renderWheel(list){
 
 function startDraw(){
   if(isDrawing) return;
+
+  unlockAudio();
 
   const prize = getCurrentPrize();
 
@@ -1029,15 +1159,21 @@ function spinNextWinner(){
   const winner = drawQueue[drawIndex];
   const prize = prizes.find(p=>p.id===pendingPrizeId);
   const wheel = document.getElementById("wheelSpin");
+  const frame = document.getElementById("wheelFrame");
 
   document.getElementById("resultTitle").textContent = "抽獎中...";
   document.getElementById("resultSub").textContent =
     `第 ${drawIndex + 1} 位抽獎中｜${prize ? prize.name : ""}`;
 
+  frame.classList.add("spinning");
+  startTickEffect();
+
   rotation += 1800 + Math.floor(Math.random()*1440);
   wheel.style.transform = `rotate(${rotation}deg)`;
 
   setTimeout(()=>{
+    stopTickEffect();
+    frame.classList.remove("spinning");
     showWinnerModal(winner);
   },4100);
 }
@@ -1145,6 +1281,71 @@ function weightedPick(pool){
   }
 
   return pool[pool.length-1];
+}
+
+function startTickEffect(){
+  stopTickEffect();
+
+  let interval = 55;
+  let elapsed = 0;
+
+  tickTimer = setInterval(()=>{
+    elapsed += interval;
+    triggerPointerTick();
+    playTickSound();
+
+    if(elapsed > 2800) interval = 95;
+    if(elapsed > 3400) interval = 145;
+    if(elapsed > 3850) interval = 220;
+  },interval);
+}
+
+function stopTickEffect(){
+  if(tickTimer){
+    clearInterval(tickTimer);
+    tickTimer = null;
+  }
+}
+
+function triggerPointerTick(){
+  const pointer = document.getElementById("pointer");
+  pointer.classList.remove("tick");
+  void pointer.offsetWidth;
+  pointer.classList.add("tick");
+}
+
+function unlockAudio(){
+  try{
+    if(!audioCtx){
+      audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+    }
+
+    if(audioCtx.state === "suspended"){
+      audioCtx.resume();
+    }
+  }catch(e){}
+}
+
+function playTickSound(){
+  try{
+    unlockAudio();
+    if(!audioCtx) return;
+
+    const osc = audioCtx.createOscillator();
+    const gain = audioCtx.createGain();
+
+    osc.type = "square";
+    osc.frequency.setValueAtTime(950, audioCtx.currentTime);
+
+    gain.gain.setValueAtTime(0.035, audioCtx.currentTime);
+    gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.035);
+
+    osc.connect(gain);
+    gain.connect(audioCtx.destination);
+
+    osc.start();
+    osc.stop(audioCtx.currentTime + 0.04);
+  }catch(e){}
 }
 
 function renderRecords(){
