@@ -611,3 +611,138 @@ button:disabled{opacity:.55;cursor:not-allowed}
   .gacha-open-hint .en{font-size:19px}
   .gacha-open-hint .zh{font-size:14px}
 }
+
+
+/* === Gacha Ball Pool v1：取消扭蛋機，改為球池點選開獎 === */
+.ballpool-area{
+  min-height:680px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  flex-direction:column;
+}
+.ballpool-stage{
+  width:min(920px,96vw);
+  height:620px;
+  position:relative;
+  overflow:hidden;
+  border-radius:34px;
+  border:8px solid #7c2d12;
+  background:
+    radial-gradient(circle at 30% 20%,rgba(255,255,255,.85),rgba(255,255,255,0) 22%),
+    linear-gradient(180deg,#fff7ed,#fed7aa 42%,#fdba74 100%);
+  box-shadow:
+    inset 0 0 0 8px rgba(251,191,36,.65),
+    inset 0 -28px 38px rgba(124,45,18,.18),
+    0 18px 34px rgba(0,0,0,.18);
+}
+.ballpool-floor{
+  position:absolute;
+  left:0;right:0;bottom:0;
+  height:96px;
+  background:linear-gradient(180deg,rgba(180,83,9,.12),rgba(146,64,14,.35));
+  border-top:5px solid rgba(124,45,18,.25);
+}
+.pick-ball{
+  position:absolute;
+  width:72px;
+  height:72px;
+  border-radius:50%;
+  border:5px solid rgba(124,45,18,.65);
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  font-weight:900;
+  color:#4a2a00;
+  text-shadow:0 1px 0 rgba(255,255,255,.65);
+  cursor:pointer;
+  user-select:none;
+  box-shadow:
+    inset -10px -10px 13px rgba(0,0,0,.16),
+    inset 8px 8px 13px rgba(255,255,255,.68),
+    0 8px 13px rgba(0,0,0,.18);
+  transition:transform .12s, filter .12s, box-shadow .12s;
+  will-change:left,top,transform;
+}
+.pick-ball:hover{
+  filter:brightness(1.15);
+  transform:scale(1.12);
+  box-shadow:
+    0 0 0 7px rgba(250,204,21,.28),
+    0 0 30px rgba(250,204,21,.8),
+    inset -10px -10px 13px rgba(0,0,0,.16),
+    inset 8px 8px 13px rgba(255,255,255,.68),
+    0 8px 13px rgba(0,0,0,.18);
+}
+.pick-ball.opened{
+  pointer-events:none;
+  opacity:.35;
+  filter:grayscale(.55);
+}
+.pick-ball.shaking{
+  animation:ballWobble .35s ease-in-out infinite alternate;
+}
+@keyframes ballWobble{
+  from{transform:scale(1) rotate(-8deg)}
+  to{transform:scale(1.08) rotate(8deg)}
+}
+.ballpool-hint{
+  margin-top:14px;
+  text-align:center;
+  color:#7c2d12;
+  font-weight:900;
+  font-size:20px;
+}
+.ballpool-hint span{
+  color:#dc2626;
+}
+.ballpool-open-flash{
+  position:absolute;
+  width:20px;
+  height:20px;
+  border-radius:50%;
+  background:white;
+  pointer-events:none;
+  opacity:0;
+  z-index:20;
+}
+.ballpool-open-flash.burst{
+  animation:ballpoolFlash .75s ease-out forwards;
+}
+@keyframes ballpoolFlash{
+  0%{opacity:0;transform:translate(-50%,-50%) scale(.3);box-shadow:0 0 0 rgba(255,255,255,0)}
+  25%{opacity:1}
+  100%{opacity:0;transform:translate(-50%,-50%) scale(18);box-shadow:0 0 80px rgba(255,255,255,.95)}
+}
+.ballpool-toolbar{
+  display:flex;
+  flex-wrap:wrap;
+  justify-content:center;
+  align-items:center;
+  gap:10px;
+  margin-top:10px;
+}
+.ballpool-status{
+  width:min(920px,96vw);
+  background:#fff8ec;
+  border:4px solid #9b642f;
+  border-radius:20px;
+  padding:12px 16px;
+  margin-bottom:12px;
+  text-align:center;
+  font-weight:900;
+  color:#7c2d12;
+}
+@media(max-width:900px){
+  .ballpool-stage{
+    height:560px;
+  }
+  .pick-ball{
+    width:58px;
+    height:58px;
+    font-size:13px;
+  }
+  .ballpool-hint{
+    font-size:16px;
+  }
+}
