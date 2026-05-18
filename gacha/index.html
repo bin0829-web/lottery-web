@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>NM4DJ專屬扭蛋球池</title>
-<link rel="stylesheet" href="../style.css?v=20260518-ballpool-v1">
+<link rel="stylesheet" href="../style.css?v=20260518-ballpool-realistic-v1">
 </head>
 <body>
 <header>
@@ -322,42 +322,77 @@ function createBalls(){
 
   const rect=stage.getBoundingClientRect();
   const size=window.innerWidth<=900?58:72;
-  const cols=Math.max(4,Math.floor(rect.width/(size+10)));
+  const padding=12;
+  const floorBottom=18;
+  const placed=[];
 
   state.balls=state.active.map((p,i)=>{
     const el=document.createElement("div");
     el.className="pick-ball";
-    el.textContent=p.number;
-    el.title=p.name;
+    el.textContent="";
+    el.title="神秘扭蛋球";
     el.dataset.number=p.number;
     el.onclick=()=>openBall(p.number);
 
-    const col=i%cols;
-    const row=Math.floor(i/cols);
-    const x=20+col*(size+10)+Math.random()*12;
-    const y=Math.max(20,rect.height-120-row*(size*.48)-Math.random()*18);
+    const color=ballColors[i%ballColors.length];
+    el.style.setProperty("--ballColor",`linear-gradient(135deg,${color},#fff 82%)`);
+
+    let x=padding;
+    let y=rect.height-size-floorBottom;
+    let ok=false;
+
+    for(let attempt=0;attempt<900;attempt++){
+      const rx=padding+Math.random()*(rect.width-size-padding*2);
+      const ry=padding+Math.random()*(rect.height-size-floorBottom-padding);
+
+      ok=true;
+      for(const other of placed){
+        const dx=rx-other.x;
+        const dy=ry-other.y;
+        const minDist=size*0.92;
+        if(Math.sqrt(dx*dx+dy*dy)<minDist){
+          ok=false;
+          break;
+        }
+      }
+
+      if(ok){
+        x=rx;
+        y=ry;
+        break;
+      }
+    }
+
+    if(!ok){
+      const cols=Math.max(4,Math.floor((rect.width-padding*2)/(size*0.95)));
+      const col=i%cols;
+      const row=Math.floor(i/cols);
+      x=padding+col*(size*0.95);
+      y=Math.max(padding,rect.height-size-floorBottom-row*(size*0.86));
+    }
 
     const ball={
       participant:p,
       el,
-      x:Math.min(rect.width-size-10,x),
-      y:Math.max(16,Math.min(rect.height-size-10,y)),
+      x,
+      y,
       vx:0,
       vy:0,
       size,
       opened:false
     };
 
+    placed.push(ball);
+
     el.style.left=ball.x+"px";
     el.style.top=ball.y+"px";
-    el.style.background=`linear-gradient(135deg,${ballColors[i%ballColors.length]},#fff)`;
     stage.appendChild(el);
     return ball;
   });
 
   document.getElementById("resultTitle").textContent="尚未抽獎";
   document.getElementById("resultSub").textContent="請攪動球後，手動點選扭蛋球";
-  document.getElementById("poolStatus").textContent=`已生成 ${state.balls.length} 顆扭蛋球，可先攪動再點選開獎。`;
+  document.getElementById("poolStatus").innerHTML=`已生成 <strong>${state.balls.length}</strong> 顆神秘扭蛋球，球面不顯示號碼，請攪動後任選一顆開獎。`;
 }
 
 function mixBalls(){
@@ -370,7 +405,7 @@ function mixBalls(){
   if(!count||count<1)return alert("抽取數量至少為 1");
   if(count>p.quota-p.drawn)return alert(`此獎項剩餘名額只有 ${p.quota-p.drawn} 位。`);
 
-  document.getElementById("poolStatus").textContent="球正在彈跳攪動中，你可以等待停下，也可以直接點選一顆。";
+  document.getElementById("poolStatus").textContent="球正在彈跳攪動中，球面不顯示號碼，請憑直覺選一顆。";
   document.getElementById("resultTitle").textContent="攪動中...";
   document.getElementById("resultSub").textContent="所有扭蛋球正在隨機滾動。";
 
@@ -379,8 +414,8 @@ function mixBalls(){
 
   state.balls.forEach(ball=>{
     if(ball.opened)return;
-    ball.vx+=(Math.random()-.5)*920;
-    ball.vy-=520+Math.random()*720;
+    ball.vx+=(Math.random()-.5)*1250;
+    ball.vy-=620+Math.random()*880;
     ball.el.classList.add("shaking");
   });
 
@@ -405,12 +440,12 @@ function settleBalls(){
 function stepPhysics(now){
   const stage=document.getElementById("ballStage");
   const rect=stage.getBoundingClientRect();
-  const dt=Math.min((now-state.lastTime)/1000,.035);
+  const dt=Math.min((now-state.lastTime)/1000,.03);
   state.lastTime=now;
 
   const gravity=980;
-  const bounce=.72;
-  const friction=.992;
+  const bounce=.76;
+  const friction=.993;
   let moving=false;
 
   state.balls.forEach(ball=>{
@@ -428,6 +463,56 @@ function stepPhysics(now){
       ball.vy=-Math.abs(ball.vy)*bounce;
       ball.vx*=.94;
     }
+  });
+
+  // 簡易球體碰撞：避免攪動後重疊
+  for(let i=0;i<state.balls.length;i++){
+    const a=state.balls[i];
+    if(a.opened)continue;
+
+    for(let j=i+1;j<state.balls.length;j++){
+      const b=state.balls[j];
+      if(b.opened)continue;
+
+      const ax=a.x+a.size/2;
+      const ay=a.y+a.size/2;
+      const bx=b.x+b.size/2;
+      const by=b.y+b.size/2;
+      let dx=bx-ax;
+      let dy=by-ay;
+      let dist=Math.sqrt(dx*dx+dy*dy) || .001;
+      const minDist=(a.size+b.size)*.49;
+
+      if(dist<minDist){
+        const nx=dx/dist;
+        const ny=dy/dist;
+        const overlap=minDist-dist;
+
+        a.x-=nx*overlap*.5;
+        a.y-=ny*overlap*.5;
+        b.x+=nx*overlap*.5;
+        b.y+=ny*overlap*.5;
+
+        const dvx=b.vx-a.vx;
+        const dvy=b.vy-a.vy;
+        const impact=dvx*nx+dvy*ny;
+
+        if(impact<0){
+          const impulse=impact*.82;
+          a.vx+=impulse*nx;
+          a.vy+=impulse*ny;
+          b.vx-=impulse*nx;
+          b.vy-=impulse*ny;
+        }
+      }
+    }
+  }
+
+  state.balls.forEach(ball=>{
+    if(ball.opened)return;
+
+    ball.x=Math.max(8,Math.min(rect.width-ball.size-8,ball.x));
+    ball.y=Math.max(8,Math.min(rect.height-ball.size-16,ball.y));
 
     ball.vx*=friction;
     ball.vy*=friction;
@@ -561,7 +646,7 @@ function finish(){
     });
   }
 
-  document.getElementById("poolStatus").textContent="本輪完成，可再次攪動球或直接點選下一輪。";
+  document.getElementById("poolStatus").textContent="本輪完成，球面仍保持隱藏，可再次攪動球或直接點選下一輪。";
 }
 
 function renderRecords(){

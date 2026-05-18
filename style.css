@@ -746,3 +746,44 @@ button:disabled{opacity:.55;cursor:not-allowed}
     font-size:16px;
   }
 }
+
+
+/* === Ball Pool Realistic v1：真實球體＋避免重疊＋隱藏號碼 === */
+.pick-ball{
+  font-size:0 !important;
+  color:transparent !important;
+  border:4px solid rgba(124,45,18,.58) !important;
+  background:
+    radial-gradient(circle at 30% 24%,rgba(255,255,255,.95),rgba(255,255,255,.34) 22%,rgba(255,255,255,0) 38%),
+    radial-gradient(circle at 70% 74%,rgba(0,0,0,.2),rgba(0,0,0,0) 38%),
+    var(--ballColor,#fbbf24) !important;
+}
+.pick-ball::after{
+  content:"";
+  position:absolute;
+  left:18%;
+  top:14%;
+  width:24%;
+  height:18%;
+  border-radius:50%;
+  background:rgba(255,255,255,.72);
+  filter:blur(.5px);
+}
+.pick-ball::before{
+  content:"";
+  position:absolute;
+  left:10%;
+  right:10%;
+  top:49%;
+  height:3px;
+  border-radius:999px;
+  background:rgba(255,255,255,.55);
+  box-shadow:0 1px 5px rgba(124,45,18,.22);
+  transform:rotate(-12deg);
+}
+.pick-ball.opened{
+  opacity:.22 !important;
+}
+.ballpool-status strong{
+  color:#dc2626;
+}
