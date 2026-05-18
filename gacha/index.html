@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>NM4DJ專屬扭蛋機</title>
-<link rel="stylesheet" href="../style.css?v=20260518-gacha-click-open">
+<link rel="stylesheet" href="../style.css?v=20260518-gacha-interactive-v1">
 </head>
 <body>
 <header>
@@ -77,9 +77,20 @@
         <label><input id="noRepeat" type="checkbox"> 不重複中獎</label>
       </div>
       <div id="prizeSummary" style="text-align:center;margin-top:10px"></div>
+
+      <div class="gacha-stage-board">
+        <div id="stageShake" class="stage-pill active">1 搖動</div>
+        <div id="stageDraw" class="stage-pill">2 抽獎</div>
+        <div id="stageOpen" class="stage-pill">3 開球</div>
+        <div class="gacha-energy-wrap">
+          <div class="gacha-energy-label">扭蛋能量</div>
+          <div class="gacha-energy-bar"><div id="gachaEnergy" class="gacha-energy-fill"></div></div>
+        </div>
+      </div>
+
       <div class="row" style="justify-content:center;margin-top:10px">
-        <button class="orange" id="mixBtn" onclick="mixBalls()">🌀 攪動球</button>
-        <button id="drawBtn" onclick="startDraw()">🥚 開始扭蛋</button>
+        <button class="orange" id="mixBtn" onclick="mixBalls()">🌀 搖動球</button>
+        <button id="drawBtn" onclick="startDraw()" disabled>🥚 開始扭蛋</button>
         <button class="red" onclick="clearRecords()">清除抽獎紀錄</button>
         <button class="blue" onclick="backToSetup()">關閉扭蛋機</button>
       </div>
@@ -88,6 +99,7 @@
     <div class="main-gacha">
       <div class="gacha-area">
         <div id="gachaMachine" class="gacha-machine">
+          <div class="gacha-status-tag" id="gachaStatusTag">先搖動球</div>
           <div class="gacha-top" id="gachaBalls"></div>
           <div class="gacha-base">
             <div class="gacha-window">NM4DJ<br><span>GACHA</span></div>
@@ -130,6 +142,9 @@ const state={
   mixTimeout:null,
   pendingWinner:null,
   canOpen:false,
+  mixLevel:0,
+  hasMixed:false,
+  selectedBallIndex:null,
   audio:null
 };
 
@@ -294,6 +309,7 @@ function buildGacha(){
   if(!state.active.length)return alert("請至少勾選一個號碼");
   document.getElementById("setupPage").classList.add("hidden");
   document.getElementById("gachaPage").classList.remove("hidden");
+  resetGachaInteraction();
   renderPrizeSelect();
   requestAnimationFrame(()=>{
     setTimeout(renderBalls,120);
@@ -308,6 +324,9 @@ function backToSetup(){
   state.pendingWinner=null;
   const hint=document.getElementById("gachaOpenHint");
   if(hint)hint.classList.add("hidden");
+  updateGachaStage("open");
+  const status=document.getElementById("gachaStatusTag");
+  if(status)status.textContent="開球中";
   document.getElementById("gachaPage").classList.add("hidden");
   document.getElementById("setupPage").classList.remove("hidden");
   renderList();
@@ -383,20 +402,32 @@ function mixBalls(){
   unlockAudio(state);
 
   const machine=document.getElementById("gachaMachine");
+  const status=document.getElementById("gachaStatusTag");
+
   machine.classList.add("mixing");
   state.isMixing=true;
+  state.hasMixed=true;
+  state.mixLevel=Math.min(100,state.mixLevel+34);
 
-  document.getElementById("resultTitle").textContent="攪動中...";
-  document.getElementById("resultSub").textContent="扭蛋球正在攪動，營造一下氣氛！";
+  updateGachaStage("shake");
+  updateEnergy();
 
+  document.getElementById("drawBtn").disabled=false;
+  document.getElementById("resultTitle").textContent="搖動中...";
+  document.getElementById("resultSub").textContent="球正在混合，能量越高越有扭蛋臨場感。";
+  if(status)status.textContent="混合中";
+
+  highlightRandomBall();
   playGachaSound(state);
 
   clearTimeout(state.mixTimeout);
   state.mixTimeout=setTimeout(()=>{
     stopMixBalls();
-    document.getElementById("resultTitle").textContent="尚未抽獎";
-    document.getElementById("resultSub").textContent="請選擇獎項後開始扭蛋";
-  },3600);
+    updateGachaStage("draw");
+    document.getElementById("resultTitle").textContent="準備完成";
+    document.getElementById("resultSub").textContent="可以開始扭蛋了。";
+    if(status)status.textContent="準備完成";
+  },1800);
 }
 
 function stopMixBalls(){
@@ -408,6 +439,12 @@ function stopMixBalls(){
 
 function startDraw(){
   if(state.isDrawing)return;
+
+  if(!state.hasMixed){
+    alert("請先按「搖動球」，再開始扭蛋。");
+    return;
+  }
+
   unlockAudio(state);
 
   const p=prize();
@@ -432,6 +469,9 @@ function startDraw(){
   state.pendingWinner=null;
   state.canOpen=false;
   state.isDrawing=true;
+  state.mixLevel=100;
+  updateEnergy();
+  updateGachaStage("draw");
 
   document.getElementById("drawBtn").disabled=true;
   document.getElementById("mixBtn").disabled=true;
@@ -451,6 +491,9 @@ function nextOne(){
   const flash=document.getElementById("gachaFlash");
   const hint=document.getElementById("gachaOpenHint");
 
+  updateGachaStage("draw");
+  const status=document.getElementById("gachaStatusTag");
+  if(status)status.textContent="抽取中";
   document.getElementById("resultTitle").textContent="扭蛋中...";
   document.getElementById("resultSub").textContent=`第 ${state.drawIndex+1} 顆扭蛋中`;
 
@@ -481,6 +524,8 @@ function nextOne(){
     drop.classList.remove("drop");
     drop.classList.add("ready-open");
     state.canOpen=true;
+    updateGachaStage("open");
+    if(status)status.textContent="點球開啟";
     document.getElementById("resultTitle").textContent="等待開球";
     document.getElementById("resultSub").textContent="CLICK BALL TO OPEN｜點擊扭蛋球開啟";
     if(hint)hint.classList.remove("hidden");
@@ -495,8 +540,11 @@ function openCapsule(){
   const drop=document.getElementById("gachaDrop");
   const flash=document.getElementById("gachaFlash");
   const hint=document.getElementById("gachaOpenHint");
+  const status=document.getElementById("gachaStatusTag");
 
   if(hint)hint.classList.add("hidden");
+  if(status)status.textContent="開球中";
+  updateGachaStage("open");
 
   drop.classList.remove("ready-open");
   drop.classList.add("opening");
@@ -572,12 +620,19 @@ function finish(){
   state.isDrawing=false;
   state.canOpen=false;
   state.pendingWinner=null;
+  state.hasMixed=false;
+  state.mixLevel=0;
+  state.selectedBallIndex=null;
+  updateEnergy();
+  updateGachaStage("shake");
   const hint=document.getElementById("gachaOpenHint");
   const drop=document.getElementById("gachaDrop");
   if(hint)hint.classList.add("hidden");
   if(drop)drop.classList.remove("ready-open","opening","drop");
-  document.getElementById("drawBtn").disabled=false;
+  document.getElementById("drawBtn").disabled=true;
   document.getElementById("mixBtn").disabled=false;
+  const status=document.getElementById("gachaStatusTag");
+  if(status)status.textContent="先搖動球";
 }
 
 function renderRecords(){
@@ -593,6 +648,69 @@ function clearRecords(){
   }
 }
 
+
+
+function resetGachaInteraction(){
+  state.isMixing=false;
+  state.hasMixed=false;
+  state.mixLevel=0;
+  state.selectedBallIndex=null;
+  state.canOpen=false;
+  state.pendingWinner=null;
+  updateEnergy();
+  updateGachaStage("shake");
+  const drawBtn=document.getElementById("drawBtn");
+  const mixBtn=document.getElementById("mixBtn");
+  const status=document.getElementById("gachaStatusTag");
+  const hint=document.getElementById("gachaOpenHint");
+  const drop=document.getElementById("gachaDrop");
+  if(drawBtn)drawBtn.disabled=true;
+  if(mixBtn)mixBtn.disabled=false;
+  if(status)status.textContent="先搖動球";
+  if(hint)hint.classList.add("hidden");
+  if(drop)drop.classList.remove("ready-open","opening","drop");
+}
+
+function updateGachaStage(stage){
+  const stages={
+    shake:document.getElementById("stageShake"),
+    draw:document.getElementById("stageDraw"),
+    open:document.getElementById("stageOpen")
+  };
+  Object.values(stages).forEach(el=>{
+    if(el)el.classList.remove("active","done");
+  });
+
+  if(stage==="shake"){
+    if(stages.shake)stages.shake.classList.add("active");
+  }
+
+  if(stage==="draw"){
+    if(stages.shake)stages.shake.classList.add("done");
+    if(stages.draw)stages.draw.classList.add("active");
+  }
+
+  if(stage==="open"){
+    if(stages.shake)stages.shake.classList.add("done");
+    if(stages.draw)stages.draw.classList.add("done");
+    if(stages.open)stages.open.classList.add("active");
+  }
+}
+
+function updateEnergy(){
+  const bar=document.getElementById("gachaEnergy");
+  if(bar)bar.style.width=Math.max(0,Math.min(100,state.mixLevel))+"%";
+}
+
+function highlightRandomBall(){
+  const balls=[...document.querySelectorAll(".gacha-ball")];
+  if(!balls.length)return;
+
+  balls.forEach(b=>b.classList.remove("selected"));
+  const index=Math.floor(Math.random()*balls.length);
+  state.selectedBallIndex=index;
+  balls[index].classList.add("selected");
+}
 
 function playOpenSound(data){
   try{
