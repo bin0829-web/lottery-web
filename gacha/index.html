@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>NM4DJ專屬扭蛋球池</title>
-<link rel="stylesheet" href="../style.css?v=20260518-circle-pool-v1">
+<link rel="stylesheet" href="../style.css?v=20260518-real-capsule-v1">
 </head>
 <body>
 <header>
@@ -100,6 +100,8 @@
         <div id="resultTitle" class="big-result">尚未抽獎</div>
         <p id="resultSub">請攪動球後，手動點選扭蛋球</p>
         <div id="currentResult" class="record">尚無本次結果</div>
+        <h3>已抽出的球</h3>
+        <div id="winnerBalls" class="winner-balls-tray">尚無</div>
         <h3>抽獎紀錄</h3>
         <div id="records" class="record">尚無紀錄</div>
       </div>
@@ -319,6 +321,8 @@ function updatePrizeSummary(){
 function createBalls(){
   const stage=document.getElementById("ballStage");
   [...stage.querySelectorAll(".pick-ball")].forEach(x=>x.remove());
+  const tray=document.getElementById("winnerBalls");
+  if(tray)tray.textContent="尚無";
 
   const rect=stage.getBoundingClientRect();
   const size=window.innerWidth<=900?52:64;
@@ -336,7 +340,7 @@ function createBalls(){
     el.onclick=()=>openBall(p.number);
 
     const color=ballColors[i%ballColors.length];
-    el.style.setProperty("--ballColor",`linear-gradient(135deg,${color},#fff 82%)`);
+    el.style.setProperty("--ballMain",color);
 
     let x=cx-size/2;
     let y=cy-size/2;
@@ -413,7 +417,6 @@ function mixBalls(){
   document.getElementById("resultSub").textContent="所有扭蛋球正在隨機滾動。";
 
   state.isMixing=true;
-  playGachaSound(state);
 
   state.balls.forEach(ball=>{
     if(ball.opened)return;
@@ -430,8 +433,10 @@ function mixBalls(){
   if(!state.anim)state.anim=requestAnimationFrame(stepPhysics);
 
   setTimeout(()=>{
+    state.isMixing=false;
     state.balls.forEach(ball=>ball.el.classList.remove("shaking"));
-  },900);
+    document.getElementById("poolStatus").textContent="攪動結束，球會自然落下停在底部；可以點選任一顆開獎。";
+  },1200);
 }
 
 function settleBalls(){
@@ -453,12 +458,16 @@ function stepPhysics(now){
   const cx=rect.width/2;
   const cy=rect.height/2;
   const poolRadius=Math.min(rect.width,rect.height)/2;
-  const bounce=.82;
-  const friction=.988;
+  const bounce=.74;
+  const friction=.986;
+  const gravity=860;
   let moving=false;
 
   state.balls.forEach(ball=>{
     if(ball.opened)return;
+
+    // 重力，讓球最後自然落在圓形球池底部
+    ball.vy+=gravity*dt;
 
     ball.x+=ball.vx*dt;
     ball.y+=ball.vy*dt;
@@ -483,6 +492,12 @@ function stepPhysics(now){
         ball.vy-=2*dot*ny;
         ball.vx*=bounce;
         ball.vy*=bounce;
+      }
+
+      // 底部摩擦：貼近下緣時慢慢停下
+      if(ny>.62){
+        ball.vx*=.93;
+        ball.vy*=.82;
       }
     }
   });
@@ -520,7 +535,7 @@ function stepPhysics(now){
         const impact=dvx*nx+dvy*ny;
 
         if(impact<0){
-          const impulse=impact*.9;
+          const impulse=impact*.86;
           a.vx+=impulse*nx;
           a.vy+=impulse*ny;
           b.vx-=impulse*nx;
@@ -533,7 +548,7 @@ function stepPhysics(now){
   state.balls.forEach(ball=>{
     if(ball.opened)return;
 
-    // 再次限制在圓形內，避免碰撞修正後跑出邊界
+    // 再次限制在圓形內
     const bx=ball.x+ball.size/2;
     const by=ball.y+ball.size/2;
     let dx=bx-cx;
@@ -551,7 +566,7 @@ function stepPhysics(now){
     ball.vx*=friction;
     ball.vy*=friction;
 
-    if(Math.abs(ball.vx)>2||Math.abs(ball.vy)>2)moving=true;
+    if(Math.abs(ball.vx)>2.5||Math.abs(ball.vy)>2.5)moving=true;
 
     ball.el.style.left=ball.x+"px";
     ball.el.style.top=ball.y+"px";
@@ -596,7 +611,6 @@ function openBall(number){
   state.drawTotal=count;
 
   ball.opened=true;
-  ball.el.classList.add("opened");
 
   const winner=ball.participant;
   state.winners.push(winner);
@@ -607,10 +621,62 @@ function openBall(number){
   flash.classList.remove("burst");
   void flash.offsetWidth;
   flash.classList.add("burst");
+
+  flyBallToWinnerTray(ball);
   playOpenSound();
 
-  setTimeout(()=>showWinner(winner),520);
+  setTimeout(()=>showWinner(winner),620);
 }
+
+
+function flyBallToWinnerTray(ball){
+  const tray=document.getElementById("winnerBalls");
+  const sourceRect=ball.el.getBoundingClientRect();
+  const trayRect=tray.getBoundingClientRect();
+
+  if(tray.textContent.trim()==="尚無"){
+    tray.textContent="";
+  }
+
+  const clone=document.createElement("div");
+  clone.className="flying-ball";
+  clone.style.width=sourceRect.width+"px";
+  clone.style.height=sourceRect.height+"px";
+  clone.style.left=sourceRect.left+"px";
+  clone.style.top=sourceRect.top+"px";
+  clone.style.setProperty("--ballMain",ball.el.style.getPropertyValue("--ballMain") || "#fbbf24");
+  document.body.appendChild(clone);
+
+  ball.el.classList.add("opened");
+
+  requestAnimationFrame(()=>{
+    clone.style.left=(trayRect.left+trayRect.width/2-23)+"px";
+    clone.style.top=(trayRect.top+trayRect.height/2-23)+"px";
+    clone.style.transform="scale(.58) rotate(720deg)";
+    clone.style.opacity=".92";
+  });
+
+  setTimeout(()=>{
+    clone.remove();
+    addMiniWinnerBall(ball);
+  },780);
+}
+
+function addMiniWinnerBall(ball){
+  const tray=document.getElementById("winnerBalls");
+  if(!tray)return;
+
+  if(tray.textContent.trim()==="尚無"){
+    tray.textContent="";
+  }
+
+  const mini=document.createElement("div");
+  mini.className="winner-mini-ball";
+  mini.title=ball.participant.name;
+  mini.style.setProperty("--ballMain",ball.el.style.getPropertyValue("--ballMain") || "#fbbf24");
+  tray.appendChild(mini);
+}
+
 
 function showWinner(winner){
   const p=state.prizes.find(x=>x.id===state.prizeId);
