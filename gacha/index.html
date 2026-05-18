@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>NM4DJ專屬扭蛋球池</title>
-<link rel="stylesheet" href="../style.css?v=20260518-clean-ball-v1">
+<link rel="stylesheet" href="../style.css?v=20260518-fix-alert-v1">
 </head>
 <body>
 <header>
@@ -185,9 +185,24 @@ function resetPrizes(){
 function clearPrizeRecords(){
   if(confirm("確定清空所有獎項已抽數量？")){
     state.prizes.forEach(p=>p.drawn=0);
+
+    // 重置本輪抽獎狀態，避免跳出「已達上限」
+    state.winners=[];
+    state.drawTotal=0;
+    state.prizeId=null;
+
     renderPrizes();
     renderPrizeSelect();
     updatePrizeSummary();
+
+    document.getElementById("resultTitle").textContent="尚未抽獎";
+    document.getElementById("resultSub").textContent="獎項紀錄已清空，可以重新開始抽獎";
+    document.getElementById("currentResult").textContent="尚無本次結果";
+
+    const tray=document.getElementById("winnerBalls");
+    if(tray) tray.textContent="尚無";
+
+    document.getElementById("poolStatus").textContent="獎項已重置，可重新攪動球並開始抽獎。";
   }
 }
 
