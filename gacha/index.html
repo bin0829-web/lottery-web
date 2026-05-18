@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>NM4DJ專屬扭蛋球池</title>
-<link rel="stylesheet" href="../style.css?v=20260518-ballpool-realistic-v1">
+<link rel="stylesheet" href="../style.css?v=20260518-circle-pool-v1">
 </head>
 <body>
 <header>
@@ -321,9 +321,10 @@ function createBalls(){
   [...stage.querySelectorAll(".pick-ball")].forEach(x=>x.remove());
 
   const rect=stage.getBoundingClientRect();
-  const size=window.innerWidth<=900?58:72;
-  const padding=12;
-  const floorBottom=18;
+  const size=window.innerWidth<=900?52:64;
+  const cx=rect.width/2;
+  const cy=rect.height/2;
+  const poolRadius=Math.min(rect.width,rect.height)/2 - size/2 - 18;
   const placed=[];
 
   state.balls=state.active.map((p,i)=>{
@@ -337,19 +338,21 @@ function createBalls(){
     const color=ballColors[i%ballColors.length];
     el.style.setProperty("--ballColor",`linear-gradient(135deg,${color},#fff 82%)`);
 
-    let x=padding;
-    let y=rect.height-size-floorBottom;
+    let x=cx-size/2;
+    let y=cy-size/2;
     let ok=false;
 
-    for(let attempt=0;attempt<900;attempt++){
-      const rx=padding+Math.random()*(rect.width-size-padding*2);
-      const ry=padding+Math.random()*(rect.height-size-floorBottom-padding);
+    for(let attempt=0;attempt<1200;attempt++){
+      const angle=Math.random()*Math.PI*2;
+      const radius=Math.sqrt(Math.random())*poolRadius;
+      const rx=cx+Math.cos(angle)*radius-size/2;
+      const ry=cy+Math.sin(angle)*radius-size/2;
 
       ok=true;
       for(const other of placed){
         const dx=rx-other.x;
         const dy=ry-other.y;
-        const minDist=size*0.92;
+        const minDist=size*0.96;
         if(Math.sqrt(dx*dx+dy*dy)<minDist){
           ok=false;
           break;
@@ -364,11 +367,11 @@ function createBalls(){
     }
 
     if(!ok){
-      const cols=Math.max(4,Math.floor((rect.width-padding*2)/(size*0.95)));
-      const col=i%cols;
-      const row=Math.floor(i/cols);
-      x=padding+col*(size*0.95);
-      y=Math.max(padding,rect.height-size-floorBottom-row*(size*0.86));
+      const ring=Math.floor(i/10)+1;
+      const angle=(i*137.5%360)*Math.PI/180;
+      const radius=Math.min(poolRadius,ring*size*.82);
+      x=cx+Math.cos(angle)*radius-size/2;
+      y=cy+Math.sin(angle)*radius-size/2;
     }
 
     const ball={
@@ -392,7 +395,7 @@ function createBalls(){
 
   document.getElementById("resultTitle").textContent="尚未抽獎";
   document.getElementById("resultSub").textContent="請攪動球後，手動點選扭蛋球";
-  document.getElementById("poolStatus").innerHTML=`已生成 <strong>${state.balls.length}</strong> 顆神秘扭蛋球，球面不顯示號碼，請攪動後任選一顆開獎。`;
+  document.getElementById("poolStatus").innerHTML=`已生成 <strong>${state.balls.length}</strong> 顆神秘扭蛋球，圓形球池內可自由彈跳，請任選一顆開獎。`;
 }
 
 function mixBalls(){
@@ -414,8 +417,12 @@ function mixBalls(){
 
   state.balls.forEach(ball=>{
     if(ball.opened)return;
-    ball.vx+=(Math.random()-.5)*1250;
-    ball.vy-=620+Math.random()*880;
+
+    const angle=Math.random()*Math.PI*2;
+    const power=620+Math.random()*920;
+
+    ball.vx+=Math.cos(angle)*power;
+    ball.vy+=Math.sin(angle)*power;
     ball.el.classList.add("shaking");
   });
 
@@ -443,29 +450,44 @@ function stepPhysics(now){
   const dt=Math.min((now-state.lastTime)/1000,.03);
   state.lastTime=now;
 
-  const gravity=980;
-  const bounce=.76;
-  const friction=.993;
+  const cx=rect.width/2;
+  const cy=rect.height/2;
+  const poolRadius=Math.min(rect.width,rect.height)/2;
+  const bounce=.82;
+  const friction=.988;
   let moving=false;
 
   state.balls.forEach(ball=>{
     if(ball.opened)return;
 
-    ball.vy+=gravity*dt;
     ball.x+=ball.vx*dt;
     ball.y+=ball.vy*dt;
 
-    if(ball.x<8){ball.x=8;ball.vx=Math.abs(ball.vx)*bounce}
-    if(ball.x>rect.width-ball.size-8){ball.x=rect.width-ball.size-8;ball.vx=-Math.abs(ball.vx)*bounce}
-    if(ball.y<8){ball.y=8;ball.vy=Math.abs(ball.vy)*bounce}
-    if(ball.y>rect.height-ball.size-16){
-      ball.y=rect.height-ball.size-16;
-      ball.vy=-Math.abs(ball.vy)*bounce;
-      ball.vx*=.94;
+    const bx=ball.x+ball.size/2;
+    const by=ball.y+ball.size/2;
+    let dx=bx-cx;
+    let dy=by-cy;
+    let dist=Math.sqrt(dx*dx+dy*dy) || .001;
+    const maxDist=poolRadius-ball.size/2-16;
+
+    if(dist>maxDist){
+      const nx=dx/dist;
+      const ny=dy/dist;
+
+      ball.x=cx+nx*maxDist-ball.size/2;
+      ball.y=cy+ny*maxDist-ball.size/2;
+
+      const dot=ball.vx*nx+ball.vy*ny;
+      if(dot>0){
+        ball.vx-=2*dot*nx;
+        ball.vy-=2*dot*ny;
+        ball.vx*=bounce;
+        ball.vy*=bounce;
+      }
     }
   });
 
-  // 簡易球體碰撞：避免攪動後重疊
+  // 球與球碰撞，避免重疊
   for(let i=0;i<state.balls.length;i++){
     const a=state.balls[i];
     if(a.opened)continue;
@@ -481,7 +503,7 @@ function stepPhysics(now){
       let dx=bx-ax;
       let dy=by-ay;
       let dist=Math.sqrt(dx*dx+dy*dy) || .001;
-      const minDist=(a.size+b.size)*.49;
+      const minDist=(a.size+b.size)*.5;
 
       if(dist<minDist){
         const nx=dx/dist;
@@ -498,7 +520,7 @@ function stepPhysics(now){
         const impact=dvx*nx+dvy*ny;
 
         if(impact<0){
-          const impulse=impact*.82;
+          const impulse=impact*.9;
           a.vx+=impulse*nx;
           a.vy+=impulse*ny;
           b.vx-=impulse*nx;
@@ -511,8 +533,20 @@ function stepPhysics(now){
   state.balls.forEach(ball=>{
     if(ball.opened)return;
 
-    ball.x=Math.max(8,Math.min(rect.width-ball.size-8,ball.x));
-    ball.y=Math.max(8,Math.min(rect.height-ball.size-16,ball.y));
+    // 再次限制在圓形內，避免碰撞修正後跑出邊界
+    const bx=ball.x+ball.size/2;
+    const by=ball.y+ball.size/2;
+    let dx=bx-cx;
+    let dy=by-cy;
+    let dist=Math.sqrt(dx*dx+dy*dy) || .001;
+    const maxDist=poolRadius-ball.size/2-16;
+
+    if(dist>maxDist){
+      const nx=dx/dist;
+      const ny=dy/dist;
+      ball.x=cx+nx*maxDist-ball.size/2;
+      ball.y=cy+ny*maxDist-ball.size/2;
+    }
 
     ball.vx*=friction;
     ball.vy*=friction;

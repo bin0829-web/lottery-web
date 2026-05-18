@@ -787,3 +787,63 @@ button:disabled{opacity:.55;cursor:not-allowed}
 .ballpool-status strong{
   color:#dc2626;
 }
+
+
+/* === Circle Ball Pool v1：圓形球池＋圓形物理邊界 === */
+.ballpool-area{
+  min-height:760px !important;
+}
+.ballpool-stage{
+  width:min(760px,94vw) !important;
+  height:min(760px,94vw) !important;
+  aspect-ratio:1 / 1;
+  border-radius:50% !important;
+  border:12px solid #7c2d12 !important;
+  background:
+    radial-gradient(circle at 35% 24%,rgba(255,255,255,.88),rgba(255,255,255,.18) 22%,rgba(255,255,255,0) 42%),
+    radial-gradient(circle at 50% 62%,rgba(251,191,36,.2),rgba(251,191,36,0) 45%),
+    radial-gradient(circle at center,#fff7ed 0%,#fed7aa 48%,#fb923c 100%) !important;
+  box-shadow:
+    inset 0 0 0 10px rgba(251,191,36,.65),
+    inset 0 -34px 52px rgba(124,45,18,.22),
+    0 22px 38px rgba(0,0,0,.2) !important;
+}
+.ballpool-stage::before{
+  content:"";
+  position:absolute;
+  inset:34px;
+  border-radius:50%;
+  border:3px dashed rgba(124,45,18,.18);
+  pointer-events:none;
+}
+.ballpool-floor{
+  display:none !important;
+}
+.ballpool-status{
+  width:min(760px,94vw) !important;
+}
+.ballpool-hint{
+  width:min(760px,94vw);
+}
+.pick-ball{
+  z-index:2;
+}
+.pick-ball:hover{
+  z-index:5;
+}
+@media(max-width:900px){
+  .ballpool-area{
+    min-height:620px !important;
+  }
+  .ballpool-stage{
+    width:min(430px,94vw) !important;
+    height:min(430px,94vw) !important;
+    border-width:8px !important;
+  }
+  .ballpool-status{
+    width:min(430px,94vw) !important;
+  }
+  .ballpool-hint{
+    width:min(430px,94vw);
+  }
+}
