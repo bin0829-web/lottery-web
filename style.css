@@ -195,3 +195,170 @@ button:disabled{opacity:.55;cursor:not-allowed}
  .winner-title{font-size:30px}.winner-prize{font-size:22px}.winner-name{font-size:28px}.lock-box p{font-size:24px}
  #passwordInput{font-size:26px;height:70px}.login-btn{font-size:32px;height:76px}
 }
+
+/* === Gacha Big v2 強制放大版：請確認 style.css 有這段 === */
+.gacha-area{
+  min-height:860px !important;
+  padding-top:10px;
+}
+.gacha-machine{
+  width:680px !important;
+  height:820px !important;
+  max-width:98vw !important;
+}
+.gacha-top{
+  width:570px !important;
+  height:520px !important;
+  border-width:14px !important;
+}
+.gacha-base{
+  width:540px !important;
+  height:360px !important;
+  bottom:26px !important;
+  border-width:14px !important;
+}
+.gacha-window{
+  width:280px !important;
+  height:105px !important;
+  top:92px !important;
+  font-size:34px !important;
+  line-height:1.05;
+  flex-direction:column;
+}
+.gacha-window span{
+  font-size:18px;
+  letter-spacing:3px;
+  color:#a16207;
+}
+.gacha-handle{
+  right:62px !important;
+  top:148px !important;
+  width:116px !important;
+  height:116px !important;
+}
+.gacha-handle::after{
+  width:28px !important;
+  height:110px !important;
+}
+.gacha-slot{
+  width:180px !important;
+  height:78px !important;
+  bottom:54px !important;
+}
+.gacha-drop{
+  width:104px !important;
+  height:104px !important;
+  bottom:140px !important;
+}
+.gacha-ball{
+  width:70px !important;
+  height:70px !important;
+}
+.gacha-machine.mixing .gacha-ball{
+  animation:ballMixWildA .52s cubic-bezier(.2,.02,.2,1) infinite !important;
+}
+.gacha-machine.mixing .gacha-ball:nth-child(2n){
+  animation-name:ballMixWildB !important;
+  animation-duration:.44s !important;
+  animation-direction:reverse !important;
+}
+.gacha-machine.mixing .gacha-ball:nth-child(3n){
+  animation-name:ballMixWildC !important;
+  animation-duration:.62s !important;
+}
+.gacha-machine.mixing .gacha-ball:nth-child(4n){
+  animation-name:ballMixWildD !important;
+  animation-duration:.55s !important;
+}
+.gacha-machine.mixing .gacha-ball:nth-child(5n){
+  animation-name:ballMixWildE !important;
+  animation-duration:.7s !important;
+}
+@keyframes ballMixWildA{
+  0%{transform:translate(0,0) rotate(0deg) scale(1)}
+  20%{transform:translate(72px,-42px) rotate(130deg) scale(1.08)}
+  42%{transform:translate(-78px,55px) rotate(260deg) scale(.93)}
+  66%{transform:translate(56px,78px) rotate(390deg) scale(1.12)}
+  100%{transform:translate(0,0) rotate(560deg) scale(1)}
+}
+@keyframes ballMixWildB{
+  0%{transform:translate(0,0) rotate(0deg)}
+  25%{transform:translate(-86px,-34px) rotate(-170deg)}
+  50%{transform:translate(82px,70px) rotate(-340deg)}
+  75%{transform:translate(-44px,86px) rotate(-500deg)}
+  100%{transform:translate(0,0) rotate(-660deg)}
+}
+@keyframes ballMixWildC{
+  0%{transform:translate(0,0) rotate(0deg) scale(1)}
+  18%{transform:translate(44px,88px) rotate(120deg) scale(1.14)}
+  48%{transform:translate(-96px,-58px) rotate(300deg) scale(.9)}
+  78%{transform:translate(104px,-20px) rotate(520deg) scale(1.1)}
+  100%{transform:translate(0,0) rotate(720deg) scale(1)}
+}
+@keyframes ballMixWildD{
+  0%{transform:translate(0,0) rotate(0deg)}
+  30%{transform:translate(105px,12px) rotate(210deg)}
+  60%{transform:translate(-58px,-92px) rotate(420deg)}
+  100%{transform:translate(0,0) rotate(690deg)}
+}
+@keyframes ballMixWildE{
+  0%{transform:translate(0,0) rotate(0deg) scale(1)}
+  28%{transform:translate(-68px,76px) rotate(190deg) scale(1.1)}
+  58%{transform:translate(94px,-66px) rotate(430deg) scale(.92)}
+  100%{transform:translate(0,0) rotate(680deg) scale(1)}
+}
+@keyframes ballDrop{
+  0%{opacity:0;bottom:380px;transform:translateX(-50%) scale(.45)}
+  25%{opacity:1}
+  62%{bottom:110px;transform:translateX(-50%) scale(1.12)}
+  82%{bottom:74px;transform:translateX(-50%) scale(.98)}
+  100%{opacity:1;bottom:62px;transform:translateX(-50%) scale(1)}
+}
+@media(max-width:900px){
+  .gacha-area{
+    min-height:650px !important;
+  }
+  .gacha-machine{
+    width:460px !important;
+    height:640px !important;
+    max-width:99vw !important;
+  }
+  .gacha-top{
+    width:390px !important;
+    height:365px !important;
+  }
+  .gacha-base{
+    width:380px !important;
+    height:275px !important;
+    bottom:22px !important;
+  }
+  .gacha-window{
+    width:210px !important;
+    height:76px !important;
+    top:72px !important;
+    font-size:26px !important;
+  }
+  .gacha-handle{
+    right:36px !important;
+    top:108px !important;
+    width:84px !important;
+    height:84px !important;
+  }
+  .gacha-handle::after{
+    width:20px !important;
+    height:80px !important;
+  }
+  .gacha-slot{
+    width:140px !important;
+    height:58px !important;
+    bottom:42px !important;
+  }
+  .gacha-ball{
+    width:52px !important;
+    height:52px !important;
+  }
+  .gacha-drop{
+    width:78px !important;
+    height:78px !important;
+  }
+}
